@@ -1,7 +1,7 @@
 import unittest
 import yaml
 import os
-from models import Character
+from models import Character, Team
 
 
 class TestCombatMechanics(unittest.TestCase):
@@ -29,6 +29,7 @@ class TestCombatMechanics(unittest.TestCase):
         }
         self.goku = Character(self.characters_db['Goku'], initial_inv)
         self.vegeta = Character(self.characters_db['Vegeta'])
+        self.frieza = Character(self.characters_db['Frieza'])
 
     def test_special_move_ki_validation(self):
         kamehameha = next(m for m in self.goku.moves if m['name'] == 'Kamehameha')
@@ -143,7 +144,6 @@ class TestCombatMechanics(unittest.TestCase):
         self.assertEqual(self.goku.base_attack, expected_atk)
 
     def test_use_consumable_restores_hp_and_ki(self):
-        """Valida restauracao de HP e Ki respeitando os limites maximos."""
         item = self.consumables['senzu_bean']
         self.goku.hp = 20
         self.goku.ki = 10
@@ -154,7 +154,6 @@ class TestCombatMechanics(unittest.TestCase):
         self.assertEqual(self.goku.ki, 10 + item['ki_restore_amount'])
 
     def test_use_consumable_decrements_inventory(self):
-        """Valida que o inventario e decrementado a cada uso."""
         item = self.consumables['ki_capsule']
         initial_qty = self.goku.inventory[item['id']]
 
@@ -163,13 +162,50 @@ class TestCombatMechanics(unittest.TestCase):
         self.assertEqual(self.goku.inventory[item['id']], initial_qty - 1)
 
     def test_use_consumable_without_quantity_fails(self):
-        """Valida que o uso falha quando a quantidade no inventario e zero."""
         item = self.consumables['senzu_bean']
         self.goku.inventory[item['id']] = 0
 
         success, msg = self.goku.use_consumable(item['id'], item)
         self.assertFalse(success)
         self.assertIn("nao possui mais unidades", msg)
+
+    # --- Testes de Batalhas em Equipe (Tag Team) ---
+
+    def test_team_initialization_and_active_member(self):
+        team = Team("Guerreiros Z", [self.goku, self.vegeta])
+        self.assertEqual(team.active_member, self.goku)
+        self.assertTrue(team.has_alive_members())
+        self.assertEqual(len(team.get_bench_members()), 1)
+
+    def test_team_voluntary_switch(self):
+        team = Team("Guerreiros Z", [self.goku, self.vegeta])
+        success, msg = team.switch_member(1)
+        self.assertTrue(success)
+        self.assertEqual(team.active_member, self.vegeta)
+
+        same_success, _ = team.switch_member(1)
+        self.assertFalse(same_success)
+
+    def test_team_cannot_switch_to_dead_member(self):
+        self.vegeta.hp = 0
+        team = Team("Guerreiros Z", [self.goku, self.vegeta])
+        success, _ = team.switch_member(1)
+        self.assertFalse(success)
+        self.assertEqual(team.active_member, self.goku)
+
+    def test_team_auto_switch_on_ko(self):
+        team = Team("Guerreiros Z", [self.goku, self.vegeta])
+        self.goku.hp = 0
+        switched = team.auto_switch_next_alive()
+        self.assertTrue(switched)
+        self.assertEqual(team.active_member, self.vegeta)
+
+    def test_team_all_dead_condition(self):
+        team = Team("Guerreiros Z", [self.goku, self.vegeta])
+        self.goku.hp = 0
+        self.vegeta.hp = 0
+        self.assertFalse(team.has_alive_members())
+        self.assertFalse(team.auto_switch_next_alive())
 
 
 if __name__ == '__main__':

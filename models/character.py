@@ -1,6 +1,7 @@
 import random
 import time
 
+
 class Character:
     def __init__(self, data, initial_inventory=None):
         self.raw_name = data['name']

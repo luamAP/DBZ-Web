@@ -2,8 +2,8 @@ import sys
 import yaml
 import os
 
-from models import Character
-from battle_engine import battle, manage_equipment_menu
+from models import Character, Team
+from battle_engine import battle, battle_team, manage_equipment_menu
 
 
 def load_characters_data():
@@ -21,7 +21,6 @@ def load_items_data():
 
 
 def create_initial_inventory(consumables_cfg):
-    """Monta o inventario inicial a partir dos valores padrao declarados no YAML."""
     return {
         item_id: item_data.get('default_quantity', 1)
         for item_id, item_data in consumables_cfg.items()
@@ -41,10 +40,11 @@ def main():
     while True:
         print("\n=== DRAGON BALL Z TEXT BATTLE ===")
         print(f"Guerreiro Atual: {player.name} (Itens Equipados: {len(player.equipped_items)})")
-        print("1. Jogar contra Vegeta")
-        print("2. Jogar contra Frieza")
-        print("3. Equipamentos e Capsulas (Customizar)")
-        print("4. Sair")
+        print("1. Batalha 1v1 contra Vegeta")
+        print("2. Batalha 1v1 contra Frieza")
+        print("3. Batalha Tag Team 2v2 (Goku & Vegeta vs Frieza Army)")
+        print("4. Equipamentos e Capsulas (Customizar Goku)")
+        print("5. Sair")
 
         choice = input("Selecione uma opcao: ")
 
@@ -57,8 +57,20 @@ def main():
             battle(player, enemy, defense_cfg, available_consumables)
             player = Character(characters_db["Goku"], create_initial_inventory(available_consumables))
         elif choice == '3':
-            manage_equipment_menu(player, available_equipment)
+            p1 = player
+            p2 = Character(characters_db["Vegeta"], create_initial_inventory(available_consumables))
+            e1 = Character(characters_db["Frieza"])
+            e2 = Character(characters_db["Vegeta"])
+            e2.name = "Clone Sombra de Vegeta"
+
+            p_team = Team("Guerreiros Z", [p1, p2])
+            e_team = Team("Exercito de Frieza", [e1, e2])
+
+            battle_team(p_team, e_team, defense_cfg, available_consumables)
+            player = Character(characters_db["Goku"], create_initial_inventory(available_consumables))
         elif choice == '4':
+            manage_equipment_menu(player, available_equipment)
+        elif choice == '5':
             print("Ate mais!")
             sys.exit()
         else:

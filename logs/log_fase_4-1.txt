@@ -1,0 +1,64 @@
+test_combo_execution (test_combat.TestCombatMechanics.test_combo_execution) ... 
+Goku inicia uma investida: Flurry Jabs!
+ Golpe 1: CONECTOU!
+ Golpe 2: CONECTOU!
+Sequencia conectada (2/2 acertos):
+Acerto direto em Vegeta! Causou 18 de dano.
+ok
+test_counter_defense (test_combat.TestCombatMechanics.test_counter_defense) ... 
+Vegeta prepara os sentidos para um Contra-Ataque!
+
+Goku avanca com Melee Attack!
+Vegeta suportou parte do golpe (21 sofrido) e contra-ataca!
+[REVIDE] Vegeta devolveu 12 de dano contra Goku!
+ok
+test_end_turn_resets_stance (test_combat.TestCombatMechanics.test_end_turn_resets_stance) ... 
+Vegeta assume uma guarda de Bloqueio rigido!
+ok
+test_equip_and_unequip_item_stats (test_combat.TestCombatMechanics.test_equip_and_unequip_item_stats) ... ok
+test_equipment_and_transformation_stacking (test_combat.TestCombatMechanics.test_equipment_and_transformation_stacking) ... 
+**************************************************
+Goku ROMPE SEUS LIMITES E SE TRANSFORMA EM SUPER SAIYAN GOKU!
+Novos Atributos -> Ataque: 30 | Defesa: 34 | Vel: 96
+**************************************************
+ok
+test_equipment_granted_moves (test_combat.TestCombatMechanics.test_equipment_granted_moves) ... ok
+test_special_move_ki_validation (test_combat.TestCombatMechanics.test_special_move_ki_validation) ... 
+Goku tenta usar Kamehameha, mas nao tem Ki suficiente! (Custo: 35)
+
+Goku reune uma quantidade massiva de energia...
+Goku: KAMEHAMEHA!!!
+Acerto direto em Vegeta! Causou 34 de dano.
+ok
+test_team_all_dead_condition (test_combat.TestCombatMechanics.test_team_all_dead_condition) ... ok
+test_team_auto_switch_on_ko (test_combat.TestCombatMechanics.test_team_auto_switch_on_ko) ... ok
+test_team_cannot_switch_to_dead_member (test_combat.TestCombatMechanics.test_team_cannot_switch_to_dead_member) ... ok
+test_team_initialization_and_active_member (test_combat.TestCombatMechanics.test_team_initialization_and_active_member) ... ok
+test_team_voluntary_switch (test_combat.TestCombatMechanics.test_team_voluntary_switch) ... ok
+test_transformation_attributes_and_ki_cost (test_combat.TestCombatMechanics.test_transformation_attributes_and_ki_cost) ... 
+**************************************************
+Goku ROMPE SEUS LIMITES E SE TRANSFORMA EM SUPER SAIYAN GOKU!
+Novos Atributos -> Ataque: 25 | Defesa: 34 | Vel: 96
+**************************************************
+ok
+test_use_consumable_decrements_inventory (test_combat.TestCombatMechanics.test_use_consumable_decrements_inventory) ... 
+[ITEM] Goku usou Capsula de Ki Concentrado!
+ -> Recuperou 50 Ki! (Atual: 50/100)
+ok
+test_use_consumable_restores_hp_and_ki (test_combat.TestCombatMechanics.test_use_consumable_restores_hp_and_ki) ... 
+[ITEM] Goku usou Semente dos Deuses!
+ -> Recuperou 80 HP! (Atual: 100/100)
+ -> Recuperou 30 Ki! (Atual: 40/100)
+ok
+test_use_consumable_without_quantity_fails (test_combat.TestCombatMechanics.test_use_consumable_without_quantity_fails) ... ok
+test_vanish_defense (test_combat.TestCombatMechanics.test_vanish_defense) ... 
+Vegeta concentra Ki para Teleporte / Esquiva Perfeita!
+
+Goku avanca com Melee Attack!
+[!] Vegeta usou o Teleporte Instantaneo! Dano completamente evitado!
+ok
+
+----------------------------------------------------------------------
+Ran 17 tests in 18.409s
+
+OK
