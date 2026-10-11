@@ -1,0 +1,47 @@
+............
+----------------------------------------------------------------------
+Ran 12 tests in 18.362s
+
+OK
+
+Goku inicia uma investida: Flurry Jabs!
+ Golpe 1: CONECTOU!
+ Golpe 2: ERROU!
+Sequencia conectada (1/2 acertos):
+Acerto direto em Vegeta! Causou 7 de dano.
+
+Vegeta prepara os sentidos para um Contra-Ataque!
+
+Goku avanca com Melee Attack!
+Vegeta suportou parte do golpe (21 sofrido) e contra-ataca!
+[REVIDE] Vegeta devolveu 12 de dano contra Goku!
+
+Vegeta assume uma guarda de Bloqueio rigido!
+
+**************************************************
+Goku ROMPE SEUS LIMITES E SE TRANSFORMA EM SUPER SAIYAN GOKU!
+Novos Atributos -> Ataque: 30 | Defesa: 34 | Vel: 96
+**************************************************
+
+Goku tenta usar Kamehameha, mas nao tem Ki suficiente! (Custo: 35)
+
+Goku reune uma quantidade massiva de energia...
+Goku: KAMEHAMEHA!!!
+Acerto direto em Vegeta! Causou 27 de dano.
+
+**************************************************
+Goku ROMPE SEUS LIMITES E SE TRANSFORMA EM SUPER SAIYAN GOKU!
+Novos Atributos -> Ataque: 25 | Defesa: 34 | Vel: 96
+**************************************************
+
+[ITEM] Goku usou Capsula de Ki Concentrado!
+ -> Recuperou 50 Ki! (Atual: 50/100)
+
+[ITEM] Goku usou Semente dos Deuses!
+ -> Recuperou 80 HP! (Atual: 100/100)
+ -> Recuperou 30 Ki! (Atual: 40/100)
+
+Vegeta concentra Ki para Teleporte / Esquiva Perfeita!
+
+Goku avanca com Melee Attack!
+[!] Vegeta usou o Teleporte Instantaneo! Dano completamente evitado!

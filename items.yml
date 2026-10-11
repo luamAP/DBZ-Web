@@ -1,0 +1,50 @@
+equipment:
+  weighted_clothing:
+    id: weighted_clothing
+    name: "Roupas Pesadas de Treino"
+    description: "Aumenta a defesa e HP maximo, mas reduz ligeiramente a velocidade."
+    stat_multipliers:
+      defense: 1.15
+      speed: 0.90
+    stat_bonuses:
+      hp: 15
+      ki_max: 0
+  potara_earring:
+    id: potara_earring
+    name: "Brinco Potara Mistico"
+    description: "Aumenta o ataque e concede um golpe mistico concentrado."
+    stat_multipliers:
+      attack: 1.20
+    stat_bonuses:
+      hp: 0
+      ki_max: 20
+    granted_moves:
+      - name: "Potara Spirit Lance"
+        ki_cost: 30
+        multiplier: 1.7
+        type: special
+  capsule_scouter:
+    id: capsule_scouter
+    name: "Rastreador Capsule Corp"
+    description: "Otimiza a leitura dos movimentos inimigos, aumentando a velocidade."
+    stat_multipliers:
+      speed: 1.25
+    stat_bonuses:
+      hp: 0
+      ki_max: 0
+
+consumables:
+  senzu_bean:
+    id: senzu_bean
+    name: "Semente dos Deuses"
+    description: "Restaura completamente o HP e recupera parte do Ki."
+    default_quantity: 1
+    hp_restore_pct: 1.0
+    ki_restore_amount: 30
+  ki_capsule:
+    id: ki_capsule
+    name: "Capsula de Ki Concentrado"
+    description: "Infusao rapida de Ki que concede carga imediata de energia."
+    default_quantity: 2
+    hp_restore_pct: 0.0
+    ki_restore_amount: 50
