@@ -1,32 +1,21 @@
 import unittest
-import yaml
-import os
 from models import Character, Team
+from data_loader import load_characters_data, load_items_data, create_initial_inventory
 
 
 class TestCombatMechanics(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        base_dir = os.path.dirname(os.path.abspath(__file__))
-
-        char_path = os.path.join(base_dir, 'characters.yml')
-        with open(char_path, 'r', encoding='utf-8') as f:
-            cls.characters_db = yaml.safe_load(f)
-
-        items_path = os.path.join(base_dir, 'items.yml')
-        with open(items_path, 'r', encoding='utf-8') as f:
-            cls.items_db = yaml.safe_load(f)
+        cls.characters_db = load_characters_data()
+        cls.items_db = load_items_data()
 
         cls.defense_cfg = cls.characters_db.get('defense_mechanics', {})
         cls.equipment_items = cls.items_db.get('equipment', {})
         cls.consumables = cls.items_db.get('consumables', {})
 
     def setUp(self):
-        initial_inv = {
-            item_id: item_data.get('default_quantity', 1)
-            for item_id, item_data in self.consumables.items()
-        }
+        initial_inv = create_initial_inventory(self.consumables)
         self.goku = Character(self.characters_db['Goku'], initial_inv)
         self.vegeta = Character(self.characters_db['Vegeta'])
         self.frieza = Character(self.characters_db['Frieza'])
@@ -167,7 +156,7 @@ class TestCombatMechanics(unittest.TestCase):
 
         success, msg = self.goku.use_consumable(item['id'], item)
         self.assertFalse(success)
-        self.assertIn("nao possui mais unidades", msg)
+        self.assertIn("Voce nao possui mais unidades", msg)
 
     # --- Testes de Batalhas em Equipe (Tag Team) ---
 

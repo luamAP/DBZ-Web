@@ -6,15 +6,10 @@ Um simulador de combate por turnos no universo de Dragon Ball Z, concebido sob o
 
 ## 🏗️ Arquitetura do Projeto
 
-* `characters.yml`: Catálogo descritivo de combatentes, atributos-base, mecânicas defensivas e técnicas de combate.
-* `items.yml`: Repositório desacoplado de equipamentos passivos, brincos Potara e itens consumíveis de suporte.
-* `models.py`: Modelos de domínio (`Character`), gestão de estado e cálculos determinísticos de atributos e dano.
-* `battle_engine.py`: Motor de combate, gestão do ciclo de turnos e submenus CLI.
-* `ai_controller.py`: Módulo de tomada de decisão não-jogável parametrizada.
-* `main.py`: Ponto de entrada da aplicação e orquestração do loop principal.
-* `test_combat.py`: Suíte de validação e garantia de qualidade com testes unitários automatizados.
-* `run_tests.py`: Script utilitário para automação da suíte de testes com geração estruturada de logs.
-* `character_template.md`: Guia de especificação de esquema e modelo para criação de novos combatentes.
+O ecossistema é projetado sob os princípios de **Clean Code**, **SOLID** e uma arquitetura estritamente **Orientada a Dados (Data-Driven)**, desacoplando regras matemáticas e catálogo de entidades do código de execução da aplicação.
+
+Para a documentação completa dos componentes, contratos de dados, fluxo de dependências e responsabilidades de cada módulo:
+👉 **[Documentação Arquitetural Completa (`arquitetura.md`)](arquitetura.md)**
 
 ---
 
@@ -38,8 +33,12 @@ Um simulador de combate por turnos no universo de Dragon Ball Z, concebido sob o
 * [x] **Inventário de Consumíveis:** Uso de Sementes dos Deuses (*Senzu Beans*) e Cápsulas de Ki durante os turnos de combate.
 * [x] **Desacoplamento de Esquemas:** Criação de `items.yml` isolando o catálogo de inventário da ficha de lutadores.
 
-### 🤝 Fase 4: Batalhas em Equipe e IA (PRÓXIMA ETAPA)
-* [ ] **Montagem de Equipes (Tag Team):** Seleção de equipes com múltiplos lutadores e mecânica de troca durante a batalha ou por derrota.
+### 🔄 Fase 4: Batalhas em Equipe e Reestruturação Arquitetural (EM PROGRESSO)
+* [x] **Montagem de Equipes (Tag Team):** Seleção de equipes com múltiplos lutadores e mecânica de rotação durante a batalha ou por derrota.
+* [x] **Modularização de Domínio:** Subdivisão de `models.py` no pacote `models/` com os módulos especializados `character.py` e `team.py`.
+* [x] **Centralização de Carregamento de Dados (`data_loader.py`):** Eliminação de código duplicado de I/O de arquivos YAML e inventários entre a aplicação e os testes.
+* [ ] **Purificação do Domínio (Clean Architecture):** Remoção de chamadas de I/O de console (`print`) e atrasos (`time.sleep`) das entidades, retornando dados estruturados de eventos para exibição na camada de apresentação (`battle_engine.py`).
+* [ ] **Modularização da Suíte de Testes (`tests/`):** Desmembramento dos testes automatizados em suítes focadas (`tests/test_character.py`, `tests/test_team.py`, `tests/test_combat_flow.py`).
 * [ ] **IA Baseada em Personalidade:** Perfis comportamentais no YAML (`agressivo`, `defensivo`, `tático`) para respostas dinâmicas no combate.
 
 ### 🌟 Fase 5: Polimento e Expansão
@@ -73,21 +72,21 @@ python run_tests.py
 
 ### Executar via Terminal Manualmente
 ```bash
-python -m unittest test_combat.py
+python -m unittest discover tests
 ```
 
 Para redirecionar manualmente para o arquivo de log:
 * **Linux / macOS / Git Bash:**
   ```bash
   mkdir -p logs
-  python -m unittest test_combat.py > logs/log.txt 2>&1
+  python -m unittest discover tests > logs/log.txt 2>&1
   ```
 * **Windows (PowerShell):**
   ```powershell
   if (!(Test-Path "logs")) { New-Item -ItemType Directory -Name "logs" }
-  python -m unittest test_combat.py *>&1 | Out-File -FilePath logs/log.txt
+  python -m unittest discover tests *>&1 | Out-File -FilePath logs/log.txt
   ```
 
 ### Executar via Interface Gráfica da IDE
-1. **VS Code:** Abra o painel de **Testing** (ícone de tubo de ensaio), configure para `unittest` na raiz `.` e execute pelo painel.
-2. **PyCharm:** Clique com o botão direito sobre `test_combat.py` ou `run_tests.py` e escolha **Run**.
+1. **VS Code:** Abra o painel de **Testing** (ícone de tubo de ensaio), configure para `unittest` na pasta de testes e execute pelo painel.
+2. **PyCharm:** Clique com o botão direito sobre o diretório de testes ou `run_tests.py` e escolha **Run**.

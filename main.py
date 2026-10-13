@@ -1,30 +1,8 @@
 import sys
-import yaml
-import os
 
 from models import Character, Team
 from battle_engine import battle, battle_team, manage_equipment_menu
-
-
-def load_characters_data():
-    base_dir = os.path.dirname(os.path.abspath(__file__))
-    file_path = os.path.join(base_dir, 'characters.yml')
-    with open(file_path, 'r', encoding='utf-8') as f:
-        return yaml.safe_load(f)
-
-
-def load_items_data():
-    base_dir = os.path.dirname(os.path.abspath(__file__))
-    file_path = os.path.join(base_dir, 'items.yml')
-    with open(file_path, 'r', encoding='utf-8') as f:
-        return yaml.safe_load(f)
-
-
-def create_initial_inventory(consumables_cfg):
-    return {
-        item_id: item_data.get('default_quantity', 1)
-        for item_id, item_data in consumables_cfg.items()
-    }
+from data_loader import load_characters_data, load_items_data, create_initial_inventory
 
 
 def main():
