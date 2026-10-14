@@ -24,13 +24,13 @@ class TestCombatMechanics(unittest.TestCase):
         kamehameha = next(m for m in self.goku.moves if m['name'] == 'Kamehameha')
         self.goku.ki = 0
 
-        success = self.goku.execute_move(kamehameha, self.vegeta, self.defense_cfg)
+        success, _ = self.goku.execute_move(kamehameha, self.vegeta, self.defense_cfg)
         self.assertFalse(success)
         self.assertEqual(self.goku.ki, 0)
         self.assertEqual(self.vegeta.hp, self.vegeta.max_hp)
 
         self.goku.ki = kamehameha['ki_cost']
-        success = self.goku.execute_move(kamehameha, self.vegeta, self.defense_cfg)
+        success, _ = self.goku.execute_move(kamehameha, self.vegeta, self.defense_cfg)
         self.assertTrue(success)
         self.assertEqual(self.goku.ki, 0)
         self.assertLess(self.vegeta.hp, self.vegeta.max_hp)
@@ -40,7 +40,7 @@ class TestCombatMechanics(unittest.TestCase):
         self.goku.ki = combo['ki_cost']
 
         initial_hp = self.vegeta.hp
-        success = self.goku.execute_move(combo, self.vegeta, self.defense_cfg)
+        success, _ = self.goku.execute_move(combo, self.vegeta, self.defense_cfg)
 
         self.assertTrue(success)
         self.assertEqual(self.goku.ki, 0)
@@ -78,7 +78,7 @@ class TestCombatMechanics(unittest.TestCase):
         self.goku.ki = trans['required_ki']
         old_atk = self.goku.base_attack
 
-        success = self.goku.transform(trans)
+        success, _ = self.goku.transform(trans)
         self.assertTrue(success)
         self.assertEqual(self.goku.ki, 0)
         self.assertEqual(self.goku.name, trans['name'])
@@ -154,9 +154,9 @@ class TestCombatMechanics(unittest.TestCase):
         item = self.consumables['senzu_bean']
         self.goku.inventory[item['id']] = 0
 
-        success, msg = self.goku.use_consumable(item['id'], item)
+        success, payload = self.goku.use_consumable(item['id'], item)
         self.assertFalse(success)
-        self.assertIn("Voce nao possui mais unidades", msg)
+        self.assertIn("Voce nao possui mais unidades", payload['msg'])
 
     # --- Testes de Batalhas em Equipe (Tag Team) ---
 

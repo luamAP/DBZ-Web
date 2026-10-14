@@ -144,7 +144,6 @@ def get_transformation_choice(player):
 
 
 def get_team_switch_choice(player_team):
-    """Submenu para selecao e troca de integrante da equipe."""
     bench = player_team.get_bench_members()
     if not bench:
         print("\n[!] Nao ha outros guerreiros disponiveis na reserva!")
@@ -206,11 +205,74 @@ def get_player_choice(player, has_team_bench=False):
             print("Digite um numero valido.")
 
 
+def process_combat_event(event):
+    if not event:
+        return
+    t_event = event.get("target_event")
+
+    if event.get("type") == "basic":
+        print(f"\n{event['attacker']} avanca com {event['move_name']}!")
+        time.sleep(0.8)
+    elif event.get("type") == "combo":
+        print(f"\n{event['attacker']} inicia uma investida: {event['move_name']}!")
+        time.sleep(1)
+        for i, hit in enumerate(event.get('hit_results', []), 1):
+            if hit:
+                print(f" Golpe {i}: CONECTOU!")
+            else:
+                print(f" Golpe {i}: ERROU!")
+            time.sleep(0.3)
+        if event.get('successful_hits', 0) > 0:
+            print(f"Sequencia conectada ({event['successful_hits']}/{event['hits_total']} acertos):")
+        else:
+            print("O alvo esquivou de todos os golpes do combo!")
+    elif event.get("type") == "special":
+        print(f"\n{event['attacker']} reune uma quantidade massiva de energia...")
+        time.sleep(1)
+        print(f"{event['attacker']}: {event['move_name'].upper()}!!!")
+        time.sleep(1)
+
+    if t_event:
+        if t_event.get("evaded"):
+            if t_event.get("stance") == "vanish":
+                print(f"[!] {t_event['target']} usou o Teleporte Instantaneo! Dano completamente evitado!")
+            elif t_event.get("stance") == "dodge":
+                print(f"[!] {t_event['target']} esquivou com agilidade acrobatica! Ataque desviado!")
+        else:
+            if t_event.get("stance") == "dodge":
+                print(f"[!] {t_event['target']} tentou esquivar, mas foi pego!")
+            elif t_event.get("stance") == "counter":
+                print(f"{t_event['target']} suportou parte do golpe ({t_event['damage_taken']} sofrido) e contra-ataca!")
+                print(f"[REVIDE] {t_event['target']} devolveu {t_event['reflected_damage']} de dano contra {t_event['attacker_name']}!")
+            elif t_event.get("blocked"):
+                print(f"{t_event['target']} bloqueou firmemente! Dano atenuado para {t_event['damage_taken']}.")
+            else:
+                print(f"Acerto direto em {t_event['target']}! Causou {t_event['damage_taken']} de dano.")
+    time.sleep(1)
+
+
+def render_action_event(action_type, ev_data):
+    """Renderiza eventos de ação genéricos para qualquer combatente."""
+    if action_type == 'move':
+        process_combat_event(ev_data)
+    elif action_type == 'charge':
+        print(f"\n{ev_data['name']} concentra sua energia! HAAAAAAAA!")
+        print(f"{ev_data['name']} recuperou {ev_data['amount']} de Ki. Ki Atual: {ev_data['ki_now']}/{ev_data['max_ki']}")
+        time.sleep(1)
+    elif action_type == 'defend':
+        stances_desc = {
+            'block': "assume uma guarda de Bloqueio rigido!",
+            'counter': "prepara os sentidos para um Contra-Ataque!",
+            'dodge': "fica leve nos pes pronto para Esquivar!",
+            'vanish': "concentra Ki para Teleporte / Esquiva Perfeita!"
+        }
+        print(f"\n{ev_data['name']} {stances_desc.get(ev_data['stance'], 'assume postura defensiva!')}")
+        time.sleep(1)
+
+
 def battle_team(player_team, enemy_team, defense_cfg=None, consumables_cfg=None):
-    """Executa a batalha suportando equipes completas ou combates individuais."""
     cfg_def = defense_cfg or {}
     cfg_cons = consumables_cfg or {}
-
     print("\n" * 5)
     print(f"=== BATALHA: {player_team.name} vs {enemy_team.name}! ===")
     time.sleep(1.5)
@@ -218,7 +280,6 @@ def battle_team(player_team, enemy_team, defense_cfg=None, consumables_cfg=None)
     while player_team.has_alive_members() and enemy_team.has_alive_members():
         player = player_team.active_member
         enemy = enemy_team.active_member
-
         turn_order = [player, enemy] if player.speed >= enemy.speed else [enemy, player]
 
         for combatant in turn_order:
@@ -240,30 +301,51 @@ def battle_team(player_team, enemy_team, defense_cfg=None, consumables_cfg=None)
 
                     if choice <= total_moves:
                         move = current_player.moves[choice - 1]
-                        if move.get('ki_cost', 0) > 0 and current_player.ki < move['ki_cost']:
-                            print(f"\n[!] Ki insuficiente para {move['name']}! Requer {move['ki_cost']} de Ki.")
-                        else:
-                            current_player.execute_move(move, current_enemy, cfg_def)
+                        success, ev_data = current_player.execute_move(move, current_enemy, cfg_def)
+                        if success:
+                            render_action_event('move', ev_data)
                             valid_turn = True
+                        else:
+                            print(f"\n[!] {ev_data.get('msg')}")
                     elif choice == charge_opt:
-                        current_player.charge_ki()
+                        ev_data = current_player.charge_ki()
+                        render_action_event('charge', ev_data)
                         valid_turn = True
                     elif choice == defend_opt:
                         stance = get_defense_choice(current_player, cfg_def)
                         if stance:
-                            current_player.defend(stance)
+                            ev_data = current_player.defend(stance)
+                            render_action_event('defend', ev_data)
                             valid_turn = True
                     elif choice == item_opt:
                         item_selection = get_consumable_choice(current_player, cfg_cons)
                         if item_selection:
                             item_id, item_data = item_selection
-                            success, _ = current_player.use_consumable(item_id, item_data)
+                            success, ev_data = current_player.use_consumable(item_id, item_data)
                             if success:
+                                print(f"\n[ITEM] {current_player.name} usou {ev_data['item_name']}!")
+                                if ev_data['hp_gain'] > 0:
+                                    print(f" -> Recuperou {ev_data['hp_gain']} HP! (Atual: {ev_data['hp_now']}/{ev_data['max_hp']})")
+                                if ev_data['ki_gain'] > 0:
+                                    print(f" -> Recuperou {ev_data['ki_gain']} Ki! (Atual: {ev_data['ki_now']}/{ev_data['max_ki']})")
+                                time.sleep(1)
                                 valid_turn = True
+                            else:
+                                print(f"\n[!] {ev_data.get('msg')}")
                     elif transform_opt and choice == transform_opt:
                         trans = get_transformation_choice(current_player)
-                        if trans and current_player.transform(trans):
-                            valid_turn = True
+                        if trans:
+                            success, ev_data = current_player.transform(trans)
+                            if success:
+                                print(f"\n{'*'*50}")
+                                print(f"{ev_data['old_name']} ROMPE SEUS LIMITES E SE TRANSFORMA EM {ev_data['new_name'].upper()}!")
+                                print(f"Novos Atributos -> Ataque: {ev_data['attack']} | Defesa: {ev_data['defense']} | Vel: {ev_data['speed']}")
+                                print(f"{'*'*50}")
+                                time.sleep(1.5)
+                                valid_turn = True
+                            else:
+                                print(f"\n[!] Nao foi possivel transformar: {ev_data.get('msg')}")
+                                time.sleep(1)
                     elif switch_opt and choice == switch_opt:
                         sub_idx = get_team_switch_choice(player_team)
                         if sub_idx is not None:
@@ -272,9 +354,14 @@ def battle_team(player_team, enemy_team, defense_cfg=None, consumables_cfg=None)
                             valid_turn = True
 
             elif combatant == current_enemy and current_enemy.is_alive():
-                execute_ai_turn(current_enemy, current_player, cfg_def)
+                print_status(current_player, current_enemy)
+                print(f"\n--- Turno de {current_enemy.name} ---")
+                time.sleep(1)
+                ai_action = execute_ai_turn(current_enemy, current_player, cfg_def)
+                if ai_action:
+                    action_type, ev_data = ai_action
+                    render_action_event(action_type, ev_data)
 
-            # Validacoes de KO e trocas compulsórias
             if not current_enemy.is_alive() and enemy_team.has_alive_members():
                 print(f"\n[!] {current_enemy.name} foi derrotado!")
                 enemy_team.auto_switch_next_alive()
@@ -307,7 +394,6 @@ def battle_team(player_team, enemy_team, defense_cfg=None, consumables_cfg=None)
 
 
 def battle(player, enemy, defense_cfg=None, consumables_cfg=None):
-    """Encapsulador legado mantido para compatibilidade total."""
     p_team = Team(player.name, [player])
     e_team = Team(enemy.name, [enemy])
     battle_team(p_team, e_team, defense_cfg, consumables_cfg)

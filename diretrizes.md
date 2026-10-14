@@ -37,10 +37,11 @@ Ler dinamicamente o estado atual do projeto a partir do `README.md`, identificar
 6. **Governança de Repositório e Envio ao GitHub:**
    - Respeitar a estrutura versionada: ficheiros temporários, diretório `logs/`, caches (`__pycache__`) e variáveis locais (`.env`) devem permanecer estritamente no `.gitignore`.
    - Garantir que qualquer nova dependência externa seja adicionada formalmente ao `requirements.txt`.
-   - Ao final de cada entrega validada por testes, forneça os comandos exatos de Git (`git add`, `git commit` com mensagem semântica clara e `git push origin <branch>`) para versionamento seguro e acionamento da esteira de CI.
+   - **Manutenção da Documentação Arquitetural:** Sempre que um novo ficheiro ou diretório for criado, o ficheiro `arquitetura.md` deve ser obrigatoriamente atualizado na mesma iteração para refletir a nova estrutura.
+   - Ao final de cada entrega validada por testes, forneça os comandos exatos de Git (`git add`, `git commit` com mensagem semântica clara e `git push origin main`) para versionamento seguro e acionamento da esteira de CI na branch principal (`main`).
 
 # **Padrão de Resposta (Implementação):**
 1. Explicação técnica clara das regras adicionadas e do esquema de dados adotado.
 2. Código fonte limpo e pronto para execução (arquivos de dados, código da aplicação e testes unitários correspondentes).
 3. Verificação explícita do que precisa ser testado para validar a entrega.
-4. Bloco de comandos Git para commit e envio (push) das alterações ao repositório remoto.
+4. Bloco de comandos Git para commit e envio (push) das alterações ao repositório remoto, apontando para a branch `main`.

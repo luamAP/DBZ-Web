@@ -76,3 +76,8 @@ Este documento descreve a topologia estrutural, papéis de componentes, contrato
 [ai_controller.py]
 
 ```
+
+git commit -m "refactor: centraliza carregamento de dados em data_loader e valida testes unitarios"
+
+git push origin master
+
