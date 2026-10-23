@@ -22,6 +22,7 @@ Este documento descreve a especificação de esquema utilizada em `characters.ym
 ## 📐 Regras de Padronização para `moves`
 
 Todo combatente deve conter a seguinte estrutura balanceada:
+
 1. **1 Golpe Básico (`type: basic`):** Custo 0 de Ki, dano constante (`multiplier: 1.0`).
 2. **Combos (`type: combo`):** Custo baixo/moderado de Ki, múltiplos golpes (`hits`), taxa de acerto por golpe (`hit_chance`) e dano proporcional (`multiplier`).
 3. **Exatamente 3 Golpes Especiais (`type: special`):**
