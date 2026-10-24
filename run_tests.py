@@ -24,14 +24,19 @@ def run_suite():
     if project_root not in sys.path:
         sys.path.insert(0, project_root)
 
-    # 2. Solicita identificação da fase para o nome do log
-    try:
-        fase_atual = input("Insira a fase atual para personalizar o log (ou ENTER para 'geral'): ").strip()
-    except (EOFError, KeyboardInterrupt):
-        fase_atual = "geral"
-
-    if not fase_atual:
-        fase_atual = "geral"
+    # 2. Solicita ou lê identificação da fase para o nome do log
+    fase_atual = "geral"
+    if len(sys.argv) > 1 and not sys.argv[1].startswith("-"):
+        fase_atual = sys.argv[1].strip()
+    elif len(sys.argv) > 2 and sys.argv[1] in ("-f", "--fase", "--phase"):
+        fase_atual = sys.argv[2].strip()
+    elif sys.stdin.isatty():
+        try:
+            user_input = input("Insira a fase atual para personalizar o log (ou ENTER para 'geral'): ").strip()
+            if user_input:
+                fase_atual = user_input
+        except (EOFError, KeyboardInterrupt):
+            fase_atual = "geral"
 
     # Sanitiza o nome do arquivo
     safe_fase = "".join(c for c in fase_atual if c.isalnum() or c in ("_", "-")).strip() or "geral"
@@ -43,12 +48,16 @@ def run_suite():
 
     # 4. Carrega a suíte de testes com caminho absoluto
     loader = unittest.TestLoader()
-    try:
+    tests_dir = os.path.join(project_root, "tests")
+    if os.path.isdir(tests_dir):
+        suite = loader.discover(start_dir=tests_dir, pattern="test_*.py", top_level_dir=project_root)
+    else:
+        try:
         # Carrega diretamente o módulo test_combat para evitar falhas de discovery
-        suite = loader.loadTestsFromName("test_combat")
-    except Exception:
+            suite = loader.loadTestsFromName("test_combat")
+        except Exception:
         # Fallback para discovery absoluto
-        suite = loader.discover(start_dir=project_root, pattern="test_*.py")
+            suite = loader.discover(start_dir=project_root, pattern="test_*.py")
 
     print(f"\nIniciando execução da suíte de testes...")
     print(f"Diretório base: {project_root}")
