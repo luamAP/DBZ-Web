@@ -46,9 +46,11 @@ Este documento descreve a topologia estrutural, papéis de componentes, contrato
   * Entidade central do combatente.
   * Gerencia cálculo e recálculo dinâmico de atributos (_recalculate_stats), aplicação de multiplicadores em cascata de itens e transformações.
   * Executa mutações de status causadas por consumo de itens e golpes recebidos.
+  * Purificado sob os princípios de Clean Architecture: métodos de ação (equip_item, unequip_item, use_consumable, transform, execute_move, apply_incoming_damage) retornam contratos determinísticos (status_bool, event_payload_dict), sem qualquer acoplamento com I/O de console ou mensagens textuais fixas.
 * **models/team.py**:
   * Entidade agregadora para mecânicas de Tag Team.
   * Gerencia integridade do time, seleção do guerreiro ativo, reservas vivos (get_bench_members), trocas voluntárias e substituições automáticas por nocaute.
+  * Fornece payloads estruturados de eventos de substituição (switch_member e auto_switch_next_alive) para renderização desacoplada na camada de apresentação.
 
 * **models/__init\__.py**:
   * Fachada (*Facade*) que expõe explicitamente as classes Character e Team, blindando o restante do sistema contra caminhos internos de importação.

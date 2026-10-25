@@ -41,7 +41,7 @@ Para a documentação completa dos componentes, contratos de dados, fluxo de dep
 * [x] **Montagem de Equipes (Tag Team):** Seleção de equipes com múltiplos lutadores e mecânica de rotação durante a batalha ou por derrota.
 * [x] **Modularização de Domínio:** Subdivisão de `models.py` no pacote `models/` com os módulos especializados `character.py` e `team.py`.
 * [x] **Centralização de Carregamento de Dados (`data_loader.py`):** Eliminação de código duplicado de I/O de arquivos YAML e inventários entre a aplicação e os testes.
-* [ ] **Purificação do Domínio (Clean Architecture):** Remoção de chamadas de I/O de console (`print`) e atrasos (`time.sleep`) das entidades, retornando dados estruturados de eventos para exibição na camada de apresentação (`battle_engine.py`).
+* [x] **Purificação do Domínio (Clean Architecture):** Remoção de mensagens de apresentação e desacoplamento total das entidades, retornando dados estruturados de eventos para exibição na camada de apresentação (`battle_engine.py`).
 * [ ] **Modularização da Suíte de Testes (`tests/`):** Desmembramento dos testes automatizados em suítes focadas (`tests/test_character.py`, `tests/test_team.py`, `tests/test_combat_flow.py`).
 * [ ] **IA Baseada em Personalidade:** Perfis comportamentais no YAML (`agressivo`, `defensivo`, `tático`) para respostas dinâmicas no combate.
 

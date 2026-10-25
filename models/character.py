@@ -31,23 +31,23 @@ class Character:
     def equip_item(self, item_data):
         item_id = item_data.get('id', item_data.get('name'))
         if any(item.get('id', item.get('name')) == item_id for item in self.equipped_items):
-            return False, "Item ja equipado."
+            return False, {"reason": "already_equipped", "item_id": item_id, "item_name": item_data.get('name')}
         self.equipped_items.append(item_data)
         for move in item_data.get('granted_moves', []):
             if not any(m['name'] == move['name'] for m in self.moves):
                 self.moves.append(move)
         self._recalculate_stats()
-        return True, f"{item_data.get('name')} equipado com sucesso!"
+        return True, {"item_id": item_id, "item_name": item_data.get('name'), "granted_moves": item_data.get('granted_moves', [])}
 
     def unequip_item(self, item_id):
         item_to_remove = next((item for item in self.equipped_items if item.get('id', item.get('name')) == item_id), None)
         if not item_to_remove:
-            return False, "Item nao encontrado nos equipamentos."
+            return False, {"reason": "not_found", "item_id": item_id}
         self.equipped_items.remove(item_to_remove)
         granted_names = {m['name'] for m in item_to_remove.get('granted_moves', [])}
         self.moves = [m for m in self.moves if m['name'] not in granted_names]
         self._recalculate_stats()
-        return True, f"{item_to_remove.get('name')} desequipado!"
+        return True, {"item_id": item_id, "item_name": item_to_remove.get('name')}
 
     def use_consumable(self, item_id, item_data):
         current_qty = self.inventory.get(item_id, 0)
@@ -228,18 +228,18 @@ class Character:
 
     def can_transform(self, trans):
         if self.current_transformation == trans['name']:
-            return False, "Ja esta transformado nesta forma."
+            return False, {"reason": "already_transformed", "current": self.current_transformation}
         if self.ki < trans['required_ki']:
-            return False, f"Ki insuficiente (Requer {trans['required_ki']} Ki)."
+            return False, {"reason": "insufficient_ki", "required_ki": trans['required_ki'], "current_ki": self.ki}
         hp_limit = trans.get('hp_threshold_pct', 1.0) * self.max_hp
         if self.hp > hp_limit:
-            return False, f"HP muito alto para liberar esta forma (Exige HP <= {int(hp_limit)})."
-        return True, "Apto."
+            return False, {"reason": "hp_above_threshold", "hp_limit": hp_limit, "current_hp": self.hp}
+        return True, {"reason": "ready"}
 
     def transform(self, trans):
-        can, reason = self.can_transform(trans)
+        can, payload = self.can_transform(trans)
         if not can:
-            return False, {"msg": reason}
+            return False, payload
 
         self.ki -= trans['required_ki']
         self.current_transformation = trans['name']

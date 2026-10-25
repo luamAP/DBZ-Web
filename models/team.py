@@ -23,23 +23,34 @@ class Team:
 
     def switch_member(self, target_index):
         if target_index < 0 or target_index >= len(self.members):
-            return False, "Indice de lutador invalido."
+            return False, {"reason": "invalid_index", "target_index": target_index}
         if target_index == self.active_index:
-            return False, "Este lutador ja esta em combate!"
+            return False, {"reason": "already_active", "target_index": target_index}
         if not self.members[target_index].is_alive():
-            return False, "Nao e possivel selecionar um combatente derrotado!"
+            return False, {"reason": "is_dead", "target_index": target_index, "member_name": self.members[target_index].name}
 
         old_member = self.active_member
         self.active_index = target_index
         new_member = self.active_member
-        return True, f"Troca realizada! {old_member.name} recua e {new_member.name} assume a arena!"
+        return True, {
+            "old_member": old_member,
+            "new_member": new_member,
+            "old_name": old_member.name,
+            "new_name": new_member.name
+        }
 
     def auto_switch_next_alive(self):
         """Alterna automaticamente para o proximo integrante vivo se o ativo for nocauteado."""
         if self.active_member.is_alive():
-            return False
+            return False, {"reason": "active_is_alive"}
+        old_member = self.active_member
         for idx, member in enumerate(self.members):
             if member.is_alive():
                 self.active_index = idx
-                return True
-        return False
+                return True, {
+                    "old_member": old_member,
+                    "new_member": member,
+                    "old_name": old_member.name,
+                    "new_name": member.name
+                }
+        return False, {"reason": "no_alive_members"}

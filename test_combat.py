@@ -85,8 +85,16 @@ class TestCombatMechanics(unittest.TestCase):
         self.assertGreater(self.goku.base_attack, old_atk)
 
         self.goku.ki = 100
-        can_again, _ = self.goku.can_transform(trans)
+        can_again, reason_payload = self.goku.can_transform(trans)
         self.assertFalse(can_again)
+        self.assertEqual(reason_payload['reason'], 'already_transformed')
+
+    def test_transformation_insufficient_ki(self):
+        trans = self.goku.transformations[0]
+        self.goku.ki = 0
+        can, payload = self.goku.can_transform(trans)
+        self.assertFalse(can)
+        self.assertEqual(payload['reason'], 'insufficient_ki')
 
     def test_equip_and_unequip_item_stats(self):
         item = self.equipment_items['weighted_clothing']
@@ -94,20 +102,27 @@ class TestCombatMechanics(unittest.TestCase):
         initial_spd = self.goku.speed
         initial_max_hp = self.goku.max_hp
 
-        success, _ = self.goku.equip_item(item)
+        success, equip_payload = self.goku.equip_item(item)
         self.assertTrue(success)
+        self.assertEqual(equip_payload['item_id'], item['id'])
         self.assertGreater(self.goku.defense, initial_def)
         self.assertLess(self.goku.speed, initial_spd)
         self.assertGreater(self.goku.max_hp, initial_max_hp)
 
-        dup_success, _ = self.goku.equip_item(item)
+        dup_success, dup_payload = self.goku.equip_item(item)
         self.assertFalse(dup_success)
+        self.assertEqual(dup_payload['reason'], 'already_equipped')
 
-        unequip_success, _ = self.goku.unequip_item(item['id'])
+        unequip_success, unequip_payload = self.goku.unequip_item(item['id'])
         self.assertTrue(unequip_success)
+        self.assertEqual(unequip_payload['item_id'], item['id'])
         self.assertEqual(self.goku.defense, initial_def)
         self.assertEqual(self.goku.speed, initial_spd)
         self.assertEqual(self.goku.max_hp, initial_max_hp)
+
+        not_found_success, not_found_payload = self.goku.unequip_item('fake_item')
+        self.assertFalse(not_found_success)
+        self.assertEqual(not_found_payload['reason'], 'not_found')
 
     def test_equipment_granted_moves(self):
         item = self.equipment_items['potara_earring']
@@ -168,33 +183,39 @@ class TestCombatMechanics(unittest.TestCase):
 
     def test_team_voluntary_switch(self):
         team = Team("Guerreiros Z", [self.goku, self.vegeta])
-        success, msg = team.switch_member(1)
+        success, event_data = team.switch_member(1)
         self.assertTrue(success)
         self.assertEqual(team.active_member, self.vegeta)
+        self.assertEqual(event_data['new_name'], self.vegeta.name)
 
-        same_success, _ = team.switch_member(1)
+        same_success, same_payload = team.switch_member(1)
         self.assertFalse(same_success)
+        self.assertEqual(same_payload['reason'], 'already_active')
 
     def test_team_cannot_switch_to_dead_member(self):
         self.vegeta.hp = 0
         team = Team("Guerreiros Z", [self.goku, self.vegeta])
-        success, _ = team.switch_member(1)
+        success, payload = team.switch_member(1)
         self.assertFalse(success)
+        self.assertEqual(payload['reason'], 'is_dead')
         self.assertEqual(team.active_member, self.goku)
 
     def test_team_auto_switch_on_ko(self):
         team = Team("Guerreiros Z", [self.goku, self.vegeta])
         self.goku.hp = 0
-        switched = team.auto_switch_next_alive()
+        switched, event_data = team.auto_switch_next_alive()
         self.assertTrue(switched)
         self.assertEqual(team.active_member, self.vegeta)
+        self.assertEqual(event_data['new_name'], self.vegeta.name)
 
     def test_team_all_dead_condition(self):
         team = Team("Guerreiros Z", [self.goku, self.vegeta])
         self.goku.hp = 0
         self.vegeta.hp = 0
         self.assertFalse(team.has_alive_members())
-        self.assertFalse(team.auto_switch_next_alive())
+        switched, payload = team.auto_switch_next_alive()
+        self.assertFalse(switched)
+        self.assertEqual(payload['reason'], 'no_alive_members')
 
 
 if __name__ == '__main__':

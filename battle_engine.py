@@ -40,10 +40,20 @@ def manage_equipment_menu(character, available_items):
                 is_eq = any(eq.get('id', eq.get('name')) == item_id for eq in character.equipped_items)
 
                 if is_eq:
-                    _, msg = character.unequip_item(item_id)
+                    success, ev = character.unequip_item(item_id)
+                    if success:
+                        print(f"\n[!] {ev['item_name']} desequipado!")
+                    else:
+                        print(f"\n[!] Falha ao desequipar: {ev.get('reason')}")
                 else:
-                    _, msg = character.equip_item(selected_item)
-                print(f"\n[!] {msg}")
+                    success, ev = character.equip_item(selected_item)
+                    if success:
+                        print(f"\n[!] {ev['item_name']} equipado com sucesso!")
+                    else:
+                        reasons = {
+                            "already_equipped": "Item ja equipado."
+                        }
+                        print(f"\n[!] Falha ao equipar: {reasons.get(ev.get('reason'), ev.get('reason'))}")
             elif choice == back_opt:
                 break
             else:
@@ -344,14 +354,28 @@ def battle_team(player_team, enemy_team, defense_cfg=None, consumables_cfg=None)
                                 time.sleep(1.5)
                                 valid_turn = True
                             else:
-                                print(f"\n[!] Nao foi possivel transformar: {ev_data.get('msg')}")
+                                trans_errors = {
+                                    "already_transformed": f"Ja esta transformado nesta forma ({ev_data.get('current')}).",
+                                    "insufficient_ki": f"Ki insuficiente (Requer {ev_data.get('required_ki')} Ki, atual: {ev_data.get('current_ki')}).",
+                                    "hp_above_threshold": f"HP muito alto para liberar esta forma (Exige HP <= {int(ev_data.get('hp_limit', 0))})."
+                                }
+                                err_msg = trans_errors.get(ev_data.get('reason'), ev_data.get('msg', 'Falha na transformacao.'))
+                                print(f"\n[!] Nao foi possivel transformar: {err_msg}")
                                 time.sleep(1)
                     elif switch_opt and choice == switch_opt:
                         sub_idx = get_team_switch_choice(player_team)
                         if sub_idx is not None:
-                            _, msg = player_team.switch_member(sub_idx)
-                            print(f"\n[TAG TEAM] {msg}")
-                            valid_turn = True
+                            success, ev_data = player_team.switch_member(sub_idx)
+                            if success:
+                                print(f"\n[TAG TEAM] Troca realizada! {ev_data['old_name']} recua e {ev_data['new_name']} assume a arena!")
+                                valid_turn = True
+                            else:
+                                switch_errors = {
+                                    "invalid_index": "Indice de lutador invalido.",
+                                    "already_active": "Este lutador ja esta em combate!",
+                                    "is_dead": "Nao e possivel selecionar um combatente derrotado!"
+                                }
+                                print(f"\n[TAG TEAM] Falha: {switch_errors.get(ev_data.get('reason'), ev_data.get('reason'))}")
 
             elif combatant == current_enemy and current_enemy.is_alive():
                 print_status(current_player, current_enemy)
@@ -364,22 +388,24 @@ def battle_team(player_team, enemy_team, defense_cfg=None, consumables_cfg=None)
 
             if not current_enemy.is_alive() and enemy_team.has_alive_members():
                 print(f"\n[!] {current_enemy.name} foi derrotado!")
-                enemy_team.auto_switch_next_alive()
-                print(f"[!] {enemy_team.active_member.name} assume a luta pelo adversario!")
+                switched, ev_data = enemy_team.auto_switch_next_alive()
+                if switched:
+                    print(f"[!] {ev_data['new_name']} assume a luta pelo adversario!")
                 time.sleep(1)
 
             if not current_player.is_alive() and player_team.has_alive_members():
                 print(f"\n[!] {current_player.name} caiu!")
                 bench = player_team.get_bench_members()
                 if len(bench) == 1:
-                    player_team.switch_member(bench[0][0])
-                    print(f"[!] {player_team.active_member.name} entra imediatamente no combate!")
+                    _, ev_data = player_team.switch_member(bench[0][0])
+                    print(f"[!] {ev_data['new_name']} entra imediatamente no combate!")
                 else:
                     print("Selecione o proximo combatente para assumir o turno:")
                     chosen_idx = None
                     while chosen_idx is None:
                         chosen_idx = get_team_switch_choice(player_team)
-                    player_team.switch_member(chosen_idx)
+                    _, ev_data = player_team.switch_member(chosen_idx)
+                    print(f"[!] {ev_data['new_name']} entra no combate!")
                 time.sleep(1)
 
             combatant.end_turn()
