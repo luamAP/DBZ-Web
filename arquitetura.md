@@ -11,7 +11,7 @@ Este documento descreve a topologia estrutural, papéis de componentes, contrato
 ├── items.yml                # Base de dados de equipamentos e consumíveis
 ├── character_template.md    # Especificação do esquema de lutadores
 ├── arquitetura.md           # Mapeamento arquitetural de componentes (este arquivo)
-├── diretrizes.md            # Regras operacionais e fluxo de trabalho
+├── .agents/rules/           # Regras do agente de IA (contexto, workflow, invariantes, governança, guia de autoria)
 ├── README.md                # Visão geral, roadmap e instruções de execução
 ├── data_loader.py           # Centralizador de I/O para leitura de arquivos YAML e inventários
 ├── main.py                  # Ponto de entrada CLI e menus principais
