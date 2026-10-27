@@ -1,10 +1,9 @@
 ---
 trigger: model_decision
-description: Aplicar ao criar arquivos/diretórios, adicionar dependências ou preparar commits.
+description: Ao criar arquivos/diretórios ou adicionar dependências.
 ---
 # Governança do Repositório
 
-- Temporários, `logs/`, `__pycache__/` e `.env` ficam no `.gitignore`.
-- Nova dependência externa entra no `requirements.txt`.
-- Novo arquivo ou diretório: atualizar `arquitetura.md` na mesma iteração.
-- Entrega validada por testes é versionada conforme a Etapa 4 do `workflow.md`.
+- `logs/`, `__pycache__/`, `.env` e temporários no `.gitignore`.
+- Dependência externa nova vai para `requirements.txt`.
+- Arquivo ou diretório novo: atualizar `arquitetura.md` na mesma iteração.

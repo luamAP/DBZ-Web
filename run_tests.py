@@ -1,93 +1,66 @@
 import os
 import sys
 import unittest
+from contextlib import redirect_stderr, redirect_stdout
+
+MAX_TRACE_LINES = 12  # linhas finais de cada traceback exibidas no console
 
 
-class TeeStream:
-    """Duplica a saída para enviar simultaneamente ao console e ao arquivo de log."""
-    def __init__(self, *streams):
-        self.streams = streams
+def _resolve_phase(args):
+    """Lê a fase via argumento (posicional ou -f/--fase) ou pergunta, se interativo."""
+    phase = "geral"
+    if args and not args[0].startswith("-"):
+        phase = args[0]
+    elif len(args) > 1 and args[0] in ("-f", "--fase", "--phase"):
+        phase = args[1]
+    elif sys.stdin.isatty():
+        try:
+            phase = input("Fase para o nome do log (ENTER = 'geral'): ").strip() or "geral"
+        except (EOFError, KeyboardInterrupt):
+            pass
+    return "".join(c for c in phase if c.isalnum() or c in "_-") or "geral"
 
-    def write(self, data):
-        for s in self.streams:
-            s.write(data)
-            s.flush()
 
-    def flush(self):
-        for s in self.streams:
-            s.flush()
+def _tail(text, limit=MAX_TRACE_LINES):
+    lines = text.strip().splitlines()
+    if len(lines) <= limit:
+        return "\n".join(lines)
+    return "  ...\n" + "\n".join(lines[-limit:])
 
 
 def run_suite():
-    # 1. Garante que os caminhos sejam relativos à pasta onde este script está salvo
     project_root = os.path.dirname(os.path.abspath(__file__))
     if project_root not in sys.path:
         sys.path.insert(0, project_root)
 
-    # 2. Solicita ou lê identificação da fase para o nome do log
-    fase_atual = "geral"
-    if len(sys.argv) > 1 and not sys.argv[1].startswith("-"):
-        fase_atual = sys.argv[1].strip()
-    elif len(sys.argv) > 2 and sys.argv[1] in ("-f", "--fase", "--phase"):
-        fase_atual = sys.argv[2].strip()
-    elif sys.stdin.isatty():
-        try:
-            user_input = input("Insira a fase atual para personalizar o log (ou ENTER para 'geral'): ").strip()
-            if user_input:
-                fase_atual = user_input
-        except (EOFError, KeyboardInterrupt):
-            fase_atual = "geral"
-
-    # Sanitiza o nome do arquivo
-    safe_fase = "".join(c for c in fase_atual if c.isalnum() or c in ("_", "-")).strip() or "geral"
-
-    # 3. Garante a criação absoluta da pasta logs
+    phase = _resolve_phase(sys.argv[1:])
     logs_dir = os.path.join(project_root, "logs")
     os.makedirs(logs_dir, exist_ok=True)
-    log_path = os.path.join(logs_dir, f"log_{safe_fase}.txt")
+    log_path = os.path.join(logs_dir, f"log_{phase}.txt")
 
-    # 4. Carrega a suíte de testes com caminho absoluto
-    loader = unittest.TestLoader()
-    tests_dir = os.path.join(project_root, "tests")
-    if os.path.isdir(tests_dir):
-        suite = loader.discover(start_dir=tests_dir, pattern="test_*.py", top_level_dir=project_root)
-    else:
-        try:
-        # Carrega diretamente o módulo test_combat para evitar falhas de discovery
-            suite = loader.loadTestsFromName("test_combat")
-        except Exception:
-        # Fallback para discovery absoluto
-            suite = loader.discover(start_dir=project_root, pattern="test_*.py")
+    suite = unittest.TestLoader().discover(
+        start_dir=os.path.join(project_root, "tests"),
+        pattern="test_*.py",
+        top_level_dir=project_root,
+    )
 
-    print(f"\nIniciando execução da suíte de testes...")
-    print(f"Diretório base: {project_root}")
-    print(f"Arquivo de log: {log_path}\n" + "-" * 50)
+    # Relatório detalhado e prints do código testado vão SOMENTE para o arquivo.
+    with open(log_path, "w", encoding="utf-8") as log_file, \
+            redirect_stdout(log_file), redirect_stderr(log_file):
+        result = unittest.TextTestRunner(stream=log_file, verbosity=2).run(suite)
 
-    # 5. Executa os testes gravando no arquivo e transmitindo ao terminal
-    with open(log_path, "w", encoding="utf-8") as log_file:
-        tee = TeeStream(sys.stdout, log_file)
-        
-        # Redireciona stdout e stderr durante os testes para capturar prints e relatórios
-        original_stdout = sys.stdout
-        original_stderr = sys.stderr
-        sys.stdout = tee
-        sys.stderr = tee
+    problems = [("FAIL", t, tb) for t, tb in result.failures]
+    problems += [("ERROR", t, tb) for t, tb in result.errors]
 
-        try:
-            runner = unittest.TextTestRunner(stream=tee, verbosity=2)
-            result = runner.run(suite)
-        finally:
-            sys.stdout = original_stdout
-            sys.stderr = original_stderr
+    status = "OK" if result.wasSuccessful() else "FALHOU"
+    print(f"{status}: {result.testsRun} testes | {len(result.failures)} falhas | "
+          f"{len(result.errors)} erros | {len(result.skipped)} ignorados")
+    for kind, test, trace in problems:
+        print(f"\n[{kind}] {test.id()}\n{_tail(trace)}")
+    print(f"\nLog completo: {log_path}")
 
-    print("-" * 50)
-    print(f"Execução concluída!")
-    print(f"Logs salvos com sucesso em: {log_path}")
-    print(f"Total executados: {result.testsRun} | Falhas: {len(result.failures)} | Erros: {len(result.errors)}")
-
-    if not result.wasSuccessful():
-        sys.exit(1)
+    return 0 if result.wasSuccessful() else 1
 
 
 if __name__ == "__main__":
-    run_suite()
+    sys.exit(run_suite())

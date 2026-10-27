@@ -74,11 +74,13 @@ python main.py
 
 Para rodar os testes e gerar os logs de forma automática:
 
+Exemplo de execução:
+
 ```bash
-python run_tests.py
+python run_tests.py fase4
 ```
 
-* O script garante a existência da pasta `logs/` e salva o relatório detalhado em `logs/log.txt`.
+* O script garante a existência da pasta `logs/` e salva o relatório detalhado em `logs/log_<fase>.txt`.
 
 ### Executar via Terminal Manualmente
 

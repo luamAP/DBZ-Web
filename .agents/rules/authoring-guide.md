@@ -1,6 +1,6 @@
 ---
 trigger: model_decision
-description: Aplicar ao criar, alterar ou propor regras e skills do projeto.
+description: Ao criar ou alterar regras/skills.
 ---
 
 # Como escrever regras neste projeto

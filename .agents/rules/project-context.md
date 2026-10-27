@@ -1,11 +1,6 @@
 ---
 trigger: always_on
 ---
-# Contexto do Projeto
+# Contexto
 
-Jogo de combate RPG em texto (Python, tema Dragon Ball Z), orientado a dados:
-atributos, técnicas, itens e mecânicas globais vivem em `characters.yml` e `items.yml`.
-
-- Estrutura e responsabilidades: `arquitetura.md`.
-- Estado atual e roadmap: `README.md`.
-- Postura: Python sênior, Clean Code, SOLID, mudanças incrementais e estáveis.
+RPG de combate em texto (Python, Dragon Ball Z). Mapa de módulos: `arquitetura.md`. Pendências: `ROADMAP.md`. Mudanças incrementais, respeitando a responsabilidade de cada módulo.

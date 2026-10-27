@@ -1,19 +1,9 @@
 ---
 trigger: always_on
 ---
-
 # Invariantes de Arquitetura
 
-- **Data-driven:** nenhuma mecânica (custos de Ki, mitigação, multiplicadores, atributos de itens, taxas de acerto) pode ser constante fixa no código Python.
-
-- **Domínios de dados:** combatentes e defesas globais em `characters.yml`; itens em `items.yml`. Novos esquemas exigem documentação e arquivos dedicados.
-
-- **Domínio puro (`models/`):** sem `print`, `input` nem `time.sleep`.
-    Métodos de ação/mutação retornam `(bool, dict)` com metadados semânticos (ex.: `{"reason": "already_equipped", "item_id": ...}`). Texto de interface só existe em `battle_engine.py`.
-
-- **Consistência:** ao mudar uma assinatura, atualizar todos os chamadores no mesmo ciclo (evita `TypeError`/`AttributeError`). Se métodos interdependentes forem afetados, avisar o usuário, sem precisar aguardar aprovação.
-
-- **Responsabilidades:** respeitar a divisão descrita em `arquitetura.md`.
-
-- **Testes:** toda funcionalidade nova vem com testes automatizados.
-    Destino-alvo: `tests/` (migração prevista para a próxima fase; hoje em `test_combat.py`). `python.
+- **Data-driven:** nenhuma mecânica (Ki, mitigação, multiplicadores, atributos de itens, taxas) como constante no Python. Combatentes e defesas em `characters.yml`; itens em `items.yml`. Novo esquema exige arquivo próprio e documentação.
+- **Domínio puro (`models/`):** sem `print`, `input`, `time.sleep` (checado por `tests/test_domain_purity.py`). Ações retornam `(bool, dict)` com metadados semânticos, ex.: `{"reason": "already_equipped", "item_id": ...}`. Texto de UI só em `battle_engine.py`.
+- **Assinaturas:** ao alterar uma, atualizar todos os chamadores no mesmo ciclo e avisar sobre métodos interdependentes afetados.
+- **Testes:** toda funcionalidade nova tem testes em `tests/`.
