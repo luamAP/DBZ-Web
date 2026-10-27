@@ -17,8 +17,13 @@ Este documento descreve a topologia estrutural, papéis de componentes, contrato
 ├── main.py                  # Ponto de entrada CLI e menus principais
 ├── battle_engine.py         # Motor de combate e loop de turnos (Camada de Apresentação)
 ├── ai_controller.py         # Tomada de decisão da IA de combate parametrizada via dados
-├── test_combat.py           # Suíte de testes unitários automatizados
 ├── run_tests.py             # Script utilitário para execução e logs de testes
+├── tests/                   # Pacote de testes automatizados e validações de qualidade
+│   ├── __init__.py          # Inicializador do pacote de testes
+│   ├── test_character.py    # Testes unitários da entidade Character
+│   ├── test_team.py         # Testes unitários da entidade Team (Tag Team)
+│   ├── test_combat_flow.py  # Testes de regras de combate e defesas
+│   └── test_domain_purity.py# Validação arquitetural via AST (pureza de models/)
 └── models/                  # Pacote de domínio e modelos de entidades
     ├── __init__.py          # Fachada e exportação pública (Character, Team)
     ├── character.py         # Modelo de entidade do combatente individual
@@ -70,7 +75,11 @@ Este documento descreve a topologia estrutural, papéis de componentes, contrato
 
 ### 5. Garantia da Qualidade
 
-* **test_combat.py**: Suíte de testes automatizados unitários cobrindo regras de negócio, cálculos matemáticos, mecânicas de defesa, uso de itens, transformações e fluxo de Tag Team.
+* **tests/**: Suíte modularizada de testes automatizados unitários e de integração:
+  * `test_character.py`: Cobertura de atributos, transformações, consumíveis e equipamentos.
+  * `test_team.py`: Cobertura de mecânicas de Tag Team, rotação e KO.
+  * `test_combat_flow.py`: Resolução de ações, cálculo de Ki e posturas defensivas.
+  * `test_domain_purity.py`: Teste de contrato arquitetural com inspeção de AST garantindo ausência de chamadas I/O (`print`, `input`) ou de bloqueio (`time.sleep`) dentro de `models/`.
 * **run_tests.py**: Utilitário de automação para executar a suíte de testes e direcionar os relatórios para o diretório logs/.
 
 ## 🔄 Fluxo de Dependências
@@ -82,7 +91,7 @@ Este documento descreve a topologia estrutural, papéis de componentes, contrato
     [data_loader.py]
       │           │
       ▼           ▼
-  [main.py]   [test_combat.py]
+  [main.py]   [tests/]
       │               │
       ├───────┬───────┤
       ▼       ▼       ▼

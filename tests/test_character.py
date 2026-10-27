@@ -1,16 +1,14 @@
 import unittest
-from models import Character, Team
+from models import Character
 from data_loader import load_characters_data, load_items_data, create_initial_inventory
 
 
-class TestCombatMechanics(unittest.TestCase):
+class TestCharacter(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
         cls.characters_db = load_characters_data()
         cls.items_db = load_items_data()
-
-        cls.defense_cfg = cls.characters_db.get('defense_mechanics', {})
         cls.equipment_items = cls.items_db.get('equipment', {})
         cls.consumables = cls.items_db.get('consumables', {})
 
@@ -18,60 +16,6 @@ class TestCombatMechanics(unittest.TestCase):
         initial_inv = create_initial_inventory(self.consumables)
         self.goku = Character(self.characters_db['Goku'], initial_inv)
         self.vegeta = Character(self.characters_db['Vegeta'])
-        self.frieza = Character(self.characters_db['Frieza'])
-
-    def test_special_move_ki_validation(self):
-        kamehameha = next(m for m in self.goku.moves if m['name'] == 'Kamehameha')
-        self.goku.ki = 0
-
-        success, _ = self.goku.execute_move(kamehameha, self.vegeta, self.defense_cfg)
-        self.assertFalse(success)
-        self.assertEqual(self.goku.ki, 0)
-        self.assertEqual(self.vegeta.hp, self.vegeta.max_hp)
-
-        self.goku.ki = kamehameha['ki_cost']
-        success, _ = self.goku.execute_move(kamehameha, self.vegeta, self.defense_cfg)
-        self.assertTrue(success)
-        self.assertEqual(self.goku.ki, 0)
-        self.assertLess(self.vegeta.hp, self.vegeta.max_hp)
-
-    def test_combo_execution(self):
-        combo = next(m for m in self.goku.moves if m['type'] == 'combo')
-        self.goku.ki = combo['ki_cost']
-
-        initial_hp = self.vegeta.hp
-        success, _ = self.goku.execute_move(combo, self.vegeta, self.defense_cfg)
-
-        self.assertTrue(success)
-        self.assertEqual(self.goku.ki, 0)
-        self.assertLessEqual(self.vegeta.hp, initial_hp)
-
-    def test_vanish_defense(self):
-        self.vegeta.defend('vanish')
-        initial_hp = self.vegeta.hp
-
-        basic_move = next(m for m in self.goku.moves if m['type'] == 'basic')
-        self.goku.execute_move(basic_move, self.vegeta, self.defense_cfg)
-
-        self.assertEqual(self.vegeta.hp, initial_hp)
-
-    def test_counter_defense(self):
-        self.vegeta.defend('counter')
-        initial_goku_hp = self.goku.hp
-        initial_vegeta_hp = self.vegeta.hp
-
-        basic_move = next(m for m in self.goku.moves if m['type'] == 'basic')
-        self.goku.execute_move(basic_move, self.vegeta, self.defense_cfg)
-
-        self.assertLess(self.vegeta.hp, initial_vegeta_hp)
-        self.assertLess(self.goku.hp, initial_goku_hp)
-
-    def test_end_turn_resets_stance(self):
-        self.vegeta.defend('block')
-        self.assertEqual(self.vegeta.defensive_stance, 'block')
-
-        self.vegeta.end_turn()
-        self.assertIsNone(self.vegeta.defensive_stance)
 
     def test_transformation_attributes_and_ki_cost(self):
         trans = self.goku.transformations[0]
@@ -172,50 +116,6 @@ class TestCombatMechanics(unittest.TestCase):
         success, payload = self.goku.use_consumable(item['id'], item)
         self.assertFalse(success)
         self.assertIn("Voce nao possui mais unidades", payload['msg'])
-
-    # --- Testes de Batalhas em Equipe (Tag Team) ---
-
-    def test_team_initialization_and_active_member(self):
-        team = Team("Guerreiros Z", [self.goku, self.vegeta])
-        self.assertEqual(team.active_member, self.goku)
-        self.assertTrue(team.has_alive_members())
-        self.assertEqual(len(team.get_bench_members()), 1)
-
-    def test_team_voluntary_switch(self):
-        team = Team("Guerreiros Z", [self.goku, self.vegeta])
-        success, event_data = team.switch_member(1)
-        self.assertTrue(success)
-        self.assertEqual(team.active_member, self.vegeta)
-        self.assertEqual(event_data['new_name'], self.vegeta.name)
-
-        same_success, same_payload = team.switch_member(1)
-        self.assertFalse(same_success)
-        self.assertEqual(same_payload['reason'], 'already_active')
-
-    def test_team_cannot_switch_to_dead_member(self):
-        self.vegeta.hp = 0
-        team = Team("Guerreiros Z", [self.goku, self.vegeta])
-        success, payload = team.switch_member(1)
-        self.assertFalse(success)
-        self.assertEqual(payload['reason'], 'is_dead')
-        self.assertEqual(team.active_member, self.goku)
-
-    def test_team_auto_switch_on_ko(self):
-        team = Team("Guerreiros Z", [self.goku, self.vegeta])
-        self.goku.hp = 0
-        switched, event_data = team.auto_switch_next_alive()
-        self.assertTrue(switched)
-        self.assertEqual(team.active_member, self.vegeta)
-        self.assertEqual(event_data['new_name'], self.vegeta.name)
-
-    def test_team_all_dead_condition(self):
-        team = Team("Guerreiros Z", [self.goku, self.vegeta])
-        self.goku.hp = 0
-        self.vegeta.hp = 0
-        self.assertFalse(team.has_alive_members())
-        switched, payload = team.auto_switch_next_alive()
-        self.assertFalse(switched)
-        self.assertEqual(payload['reason'], 'no_alive_members')
 
 
 if __name__ == '__main__':
