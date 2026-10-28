@@ -1,17 +1,25 @@
 import sys
 
 from models import Character, Team
-from battle_engine import battle, battle_team, manage_equipment_menu
-from data_loader import load_characters_data, load_items_data, create_initial_inventory
+from battle_engine import battle, battle_team, manage_equipment_menu, run_campaign
+from data_loader import (
+    load_characters_data,
+    load_items_data,
+    load_campaign_data,
+    create_initial_inventory,
+)
 
 
 def main():
     characters_db = load_characters_data()
     items_db = load_items_data()
+    campaigns_db = load_campaign_data()
 
     defense_cfg = characters_db.get("defense_mechanics", {})
+    ai_profiles_cfg = characters_db.get("ai_profiles", {})
     available_equipment = items_db.get("equipment", {})
     available_consumables = items_db.get("consumables", {})
+    campaign_cfg = campaigns_db.get("campaigns", {}).get("saiyan_invasion", {})
 
     player = Character(characters_db["Goku"], create_initial_inventory(available_consumables))
 
@@ -22,17 +30,18 @@ def main():
         print("2. Batalha 1v1 contra Frieza")
         print("3. Batalha Tag Team 2v2 (Goku & Vegeta vs Frieza Army)")
         print("4. Equipamentos e Capsulas (Customizar Goku)")
-        print("5. Sair")
+        print("5. Modo Campanha (Saga dos Saiyajins e Ameaça Cósmica)")
+        print("6. Sair")
 
         choice = input("Selecione uma opcao: ")
 
         if choice == '1':
             enemy = Character(characters_db["Vegeta"])
-            battle(player, enemy, defense_cfg, available_consumables)
+            battle(player, enemy, defense_cfg, available_consumables, ai_profiles_cfg)
             player = Character(characters_db["Goku"], create_initial_inventory(available_consumables))
         elif choice == '2':
             enemy = Character(characters_db["Frieza"])
-            battle(player, enemy, defense_cfg, available_consumables)
+            battle(player, enemy, defense_cfg, available_consumables, ai_profiles_cfg)
             player = Character(characters_db["Goku"], create_initial_inventory(available_consumables))
         elif choice == '3':
             p1 = player
@@ -44,11 +53,14 @@ def main():
             p_team = Team("Guerreiros Z", [p1, p2])
             e_team = Team("Exercito de Frieza", [e1, e2])
 
-            battle_team(p_team, e_team, defense_cfg, available_consumables)
+            battle_team(p_team, e_team, defense_cfg, available_consumables, ai_profiles_cfg)
             player = Character(characters_db["Goku"], create_initial_inventory(available_consumables))
         elif choice == '4':
             manage_equipment_menu(player, available_equipment)
         elif choice == '5':
+            run_campaign(player, campaign_cfg, characters_db, items_db, defense_cfg, available_consumables, ai_profiles_cfg)
+            player = Character(characters_db["Goku"], create_initial_inventory(available_consumables))
+        elif choice == '6':
             print("Ate mais!")
             sys.exit()
         else:

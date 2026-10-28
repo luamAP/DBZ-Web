@@ -20,6 +20,13 @@ def load_items_data():
         return yaml.safe_load(f)
 
 
+def load_campaign_data():
+    """Carrega as configurações de campanhas e fases a partir de campaign.yml."""
+    file_path = os.path.join(_get_base_dir(), 'campaign.yml')
+    with open(file_path, 'r', encoding='utf-8') as f:
+        return yaml.safe_load(f)
+
+
 def create_initial_inventory(consumables_cfg):
     """Cria um dicionário de inventário inicial com base nas quantidades padrão configuradas."""
     return {

@@ -20,6 +20,7 @@ class Character:
         self.moves = list(self.base_moves)
         self.transformations = list(data.get('transformations', []))
         self.current_transformation = None
+        self.ai_profile = data.get('ai_profile', 'tatico')
         self.equipped_items = []
         self.inventory = dict(initial_inventory) if initial_inventory else {}
         self.defensive_stance = None
@@ -70,6 +71,30 @@ class Character:
 
         return True, {
             "item_name": item_data.get('name'),
+            "hp_gain": actual_hp_gain,
+            "hp_now": self.hp,
+            "max_hp": self.max_hp,
+            "ki_gain": actual_ki_gain,
+            "ki_now": self.ki,
+            "max_ki": self.max_ki
+        }
+
+    def add_to_inventory(self, item_id, quantity=1):
+        if quantity <= 0:
+            return False, {"reason": "invalid_quantity", "item_id": item_id}
+        self.inventory[item_id] = self.inventory.get(item_id, 0) + quantity
+        return True, {"item_id": item_id, "quantity": quantity, "total": self.inventory[item_id]}
+
+    def recover(self, hp_amount=0, ki_amount=0):
+        old_hp = self.hp
+        self.hp = min(self.max_hp, max(0, self.hp + hp_amount))
+        actual_hp_gain = self.hp - old_hp
+
+        old_ki = self.ki
+        self.ki = min(self.max_ki, max(0, self.ki + ki_amount))
+        actual_ki_gain = self.ki - old_ki
+
+        return True, {
             "hp_gain": actual_hp_gain,
             "hp_now": self.hp,
             "max_hp": self.max_hp,

@@ -12,9 +12,33 @@ defense_mechanics:
   vanish:
     ki_cost: 25
 
+ai_profiles:
+  agressivo:
+    name: "Agressivo"
+    special_bias: 0.80
+    combo_bias: 0.70
+    charge_ki_threshold: 25
+    defend_hp_threshold: 0.15
+    defense_bias: 0.20
+  defensivo:
+    name: "Defensivo"
+    special_bias: 0.30
+    combo_bias: 0.40
+    charge_ki_threshold: 50
+    defend_hp_threshold: 0.50
+    defense_bias: 0.75
+  tatico:
+    name: "Tático"
+    special_bias: 0.50
+    combo_bias: 0.50
+    charge_ki_threshold: 40
+    defend_hp_threshold: 0.30
+    defense_bias: 0.50
+
 
 Goku:
   name: Goku
+  ai_profile: tatico
   hp: 100
   attack: 20
   defense: 30
@@ -60,6 +84,7 @@ Goku:
 
 Vegeta:
   name: Vegeta
+  ai_profile: agressivo
   hp: 95
   attack: 23
   defense: 28
@@ -105,6 +130,7 @@ Vegeta:
 
 Frieza:
   name: Frieza (1st Form)
+  ai_profile: defensivo
   hp: 110
   attack: 18
   defense: 32

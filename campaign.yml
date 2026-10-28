@@ -1,0 +1,34 @@
+campaigns:
+  saiyan_invasion:
+    id: "saiyan_invasion"
+    name: "Saga dos Saiyajins e Ameaça Cósmica"
+    description: "Derrote os invasores do espaço em combates sequenciais para salvar a Terra e o universo."
+    stages:
+      - stage: 1
+        name: "O Orgulho Saiyajin"
+        enemy: "Vegeta"
+        recovery:
+          hp_pct: 0.25
+          ki_bonus: 20
+        drop_table:
+          - item_id: "senzu_bean"
+            item_type: "consumable"
+            chance: 0.75
+            quantity: 1
+          - item_id: "capsule_scouter"
+            item_type: "equipment"
+            chance: 0.50
+      - stage: 2
+        name: "O Tirano Galáctico"
+        enemy: "Frieza"
+        recovery:
+          hp_pct: 0.0
+          ki_bonus: 0
+        drop_table:
+          - item_id: "ki_capsule"
+            item_type: "consumable"
+            chance: 1.00
+            quantity: 2
+          - item_id: "potara_earring"
+            item_type: "equipment"
+            chance: 0.40

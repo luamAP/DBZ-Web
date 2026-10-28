@@ -26,4 +26,4 @@ jobs:
 
     - name: Executar suíte de testes unitários
       run: |
-        python -m unittest test_combat.py
+        python run_tests.py ci

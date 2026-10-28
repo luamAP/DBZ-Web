@@ -43,7 +43,7 @@ Para a documentação completa dos componentes, contratos de dados, fluxo de dep
 * [x] **Centralização de Carregamento de Dados (`data_loader.py`):** Eliminação de código duplicado de I/O de arquivos YAML e inventários entre a aplicação e os testes.
 * [x] **Purificação do Domínio (Clean Architecture):** Remoção de mensagens de apresentação e desacoplamento total das entidades, retornando dados estruturados de eventos para exibição na camada de apresentação (`battle_engine.py`).
 * [x] **Modularização da Suíte de Testes (`tests/`):** Desmembramento dos testes automatizados em suítes focadas (`tests/test_character.py`, `tests/test_team.py`, `tests/test_combat_flow.py`), incluindo um teste de pureza do domínio (via AST) que garanta a ausência de `print`, `input` e `time.sleep` em `models/`.
-* [ ] **IA Baseada em Personalidade:** Perfis comportamentais no YAML (`agressivo`, `defensivo`, `tático`) para respostas dinâmicas no combate.
+* [x] **IA Baseada em Personalidade:** Perfis comportamentais no YAML (`agressivo`, `defensivo`, `tático`) para respostas dinâmicas no combate.
 
 ### 🌟 Fase 5: Polimento e Expansão
 

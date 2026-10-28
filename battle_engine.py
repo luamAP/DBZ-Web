@@ -278,9 +278,13 @@ def render_action_event(action_type, ev_data):
         }
         print(f"\n{ev_data['name']} {stances_desc.get(ev_data['stance'], 'assume postura defensiva!')}")
         time.sleep(1)
+    elif action_type == 'transform':
+        print(f"\n{ev_data['old_name']} atinge um novo nivel de poder!")
+        print(f"Transformacao: {ev_data['new_name']}! (ATK: {ev_data['attack']} | DEF: {ev_data['defense']} | SPD: {ev_data['speed']})")
+        time.sleep(1)
 
 
-def battle_team(player_team, enemy_team, defense_cfg=None, consumables_cfg=None):
+def battle_team(player_team, enemy_team, defense_cfg=None, consumables_cfg=None, ai_profiles_cfg=None):
     cfg_def = defense_cfg or {}
     cfg_cons = consumables_cfg or {}
     print("\n" * 5)
@@ -381,7 +385,7 @@ def battle_team(player_team, enemy_team, defense_cfg=None, consumables_cfg=None)
                 print_status(current_player, current_enemy)
                 print(f"\n--- Turno de {current_enemy.name} ---")
                 time.sleep(1)
-                ai_action = execute_ai_turn(current_enemy, current_player, cfg_def)
+                ai_action = execute_ai_turn(current_enemy, current_player, cfg_def, ai_profiles_cfg)
                 if ai_action:
                     action_type, ev_data = ai_action
                     render_action_event(action_type, ev_data)
@@ -417,9 +421,92 @@ def battle_team(player_team, enemy_team, defense_cfg=None, consumables_cfg=None)
     else:
         print(f"{enemy_team.name} VENCEU... O universo esta condenado.")
     print("!" * 45)
+    return player_team.has_alive_members()
 
 
-def battle(player, enemy, defense_cfg=None, consumables_cfg=None):
+def battle(player, enemy, defense_cfg=None, consumables_cfg=None, ai_profiles_cfg=None):
     p_team = Team(player.name, [player])
     e_team = Team(enemy.name, [enemy])
-    battle_team(p_team, e_team, defense_cfg, consumables_cfg)
+    return battle_team(p_team, e_team, defense_cfg, consumables_cfg, ai_profiles_cfg)
+
+
+def run_campaign(player, campaign_cfg, characters_db, items_db, defense_cfg=None, consumables_cfg=None, ai_profiles_cfg=None):
+    from models import Campaign, Character
+
+    campaign = Campaign(campaign_cfg)
+    print("\n" + "=" * 55)
+    print(f"MODO CAMPANHA: {campaign.name.upper()}")
+    if campaign.description:
+        print(f"{campaign.description}")
+    print("=" * 55)
+
+    stage_num = 1
+    total_stages = len(campaign.stages)
+
+    while not campaign.is_completed():
+        stage = campaign.get_current_stage()
+        enemy_name = stage.get('enemy')
+        enemy_data = characters_db.get(enemy_name)
+        if not enemy_data:
+            print(f"\n[ERRO] Oponente '{enemy_name}' nao encontrado nos dados de personagens!")
+            return False
+
+        enemy = Character(enemy_data)
+
+        print("\n" + "#" * 50)
+        print(f"FASE {stage_num}/{total_stages}: {stage.get('name', enemy.name)}")
+        print(f"Oponente: {enemy.name} (HP: {enemy.max_hp} | KI: {enemy.max_ki})")
+        print("#" * 50)
+        time.sleep(1)
+
+        won = battle(player, enemy, defense_cfg, consumables_cfg, ai_profiles_cfg)
+        if not won or not player.is_alive():
+            print(f"\n[FIM DE JOGO] {player.name} foi superado na Fase {stage_num}. A campanha terminou.")
+            return False
+
+        print(f"\n[VITORIA] Fase {stage_num} concluida com exito!")
+
+        # Processar drops
+        dropped_items = campaign.resolve_drops(stage)
+        if dropped_items:
+            print("\n--- RECOMPENSAS DE COMBATE (DROPS) ---")
+            for drop in dropped_items:
+                item_id = drop['item_id']
+                item_type = drop.get('item_type', 'consumable')
+                qty = drop.get('quantity', 1)
+
+                if item_type == 'consumable':
+                    cons_info = consumables_cfg.get(item_id, {}) if consumables_cfg else {}
+                    item_display = cons_info.get('name', item_id)
+                    player.add_to_inventory(item_id, qty)
+                    print(f" [DROP] +{qty}x {item_display} adicionado(s) ao inventario!")
+                elif item_type == 'equipment':
+                    eq_info = items_db.get('equipment', {}).get(item_id, {})
+                    item_display = eq_info.get('name', item_id)
+                    success, ev = player.equip_item(eq_info)
+                    if success:
+                        print(f" [DROP] Equipamento lendario obtido e equipado: {item_display}!")
+                    else:
+                        print(f" [DROP] Equipamento obtido: {item_display} (ja equipado anteriormente).")
+
+        # Recuperação pós-fase
+        hp_rec, ki_rec = campaign.calculate_stage_recovery(player, stage)
+        if hp_rec > 0 or ki_rec > 0:
+            player.recover(hp_amount=hp_rec, ki_amount=ki_rec)
+            print(f"[RECUPERACAO] {player.name} descansa brevemente: +{hp_rec} HP | +{ki_rec} Ki")
+            print(f"Status Atual -> HP: {player.hp}/{player.max_hp} | Ki: {player.ki}/{player.max_ki}")
+
+        campaign.advance_stage()
+        stage_num += 1
+
+        if not campaign.is_completed():
+            try:
+                input("\nPressione ENTER para marchar rumo ao proximo desafio...")
+            except (EOFError, KeyboardInterrupt):
+                pass
+
+    print("\n" + "*" * 55)
+    print(f"PARABENS! VOCE COMPLETOU A CAMPANHA: {campaign.name}!")
+    print(f"O universo reconhece {player.name} como o guerreiro supremo!")
+    print("*" * 55 + "\n")
+    return True

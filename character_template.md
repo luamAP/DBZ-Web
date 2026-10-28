@@ -9,6 +9,7 @@ Este documento descreve a especificação de esquema utilizada em `characters.ym
 | Campo | Tipo | Descrição |
 | :--- | :--- | :--- |
 | `name` | String | Nome visível do guerreiro em combate |
+| `ai_profile` | String (opcional) | Perfil comportamental da IA (`agressivo`, `defensivo`, `tatico`). Padrão: `tatico` |
 | `hp` | Inteiro | Pontos de vida máximos iniciais |
 | `attack` | Inteiro | Poder ofensivo base para cálculo de dano físico e técnicas |
 | `defense` | Inteiro | Capacidade de absorção e mitigação de dano |
@@ -39,6 +40,7 @@ Copie o bloco abaixo e cole em `characters.yml` preenchendo os valores:
 ```yaml
 NomeDoLutador:
   name: "Nome do Lutador"
+  ai_profile: "tatico"
   hp: 100
   attack: 20
   defense: 30
