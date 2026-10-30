@@ -7,5 +7,5 @@
 ## Fase 5
 
 - [x] Modo campanha: batalhas sequenciais e drops.
-- [ ] Save state em `save.json`.
+- [x] Save state em `save.json`.
 - [ ] Retratos ASCII e feedback visual de Ki.

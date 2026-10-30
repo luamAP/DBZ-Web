@@ -103,6 +103,42 @@ class Character:
             "max_ki": self.max_ki
         }
 
+    def to_dict(self):
+        return {
+            "raw_name": self.raw_name,
+            "hp": self.hp,
+            "ki": self.ki,
+            "inventory": dict(self.inventory),
+            "equipped_items": [item.get('id', item.get('name')) for item in self.equipped_items],
+            "current_transformation": self.current_transformation,
+        }
+
+    def load_state(self, state, available_equipment=None):
+        if not isinstance(state, dict):
+            return False, {"reason": "invalid_state_format"}
+
+        if "inventory" in state and isinstance(state["inventory"], dict):
+            self.inventory = dict(state["inventory"])
+
+        if "equipped_items" in state and available_equipment:
+            self.equipped_items = []
+            self.moves = list(self.base_moves)
+            for eq_id in state["equipped_items"]:
+                if eq_id in available_equipment:
+                    self.equip_item(available_equipment[eq_id])
+
+        if "current_transformation" in state and state["current_transformation"]:
+            self.current_transformation = state["current_transformation"]
+
+        self._recalculate_stats()
+
+        if "hp" in state:
+            self.hp = min(self.max_hp, max(0, state["hp"]))
+        if "ki" in state:
+            self.ki = min(self.max_ki, max(0, state["ki"]))
+
+        return True, {"hp": self.hp, "ki": self.ki, "equipped_items": len(self.equipped_items)}
+
     def _recalculate_stats(self):
         hp_bonus = sum(item.get('stat_bonuses', {}).get('hp', 0) for item in self.equipped_items)
         ki_bonus = sum(item.get('stat_bonuses', {}).get('ki_max', 0) for item in self.equipped_items)

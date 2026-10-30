@@ -430,20 +430,21 @@ def battle(player, enemy, defense_cfg=None, consumables_cfg=None, ai_profiles_cf
     return battle_team(p_team, e_team, defense_cfg, consumables_cfg, ai_profiles_cfg)
 
 
-def run_campaign(player, campaign_cfg, characters_db, items_db, defense_cfg=None, consumables_cfg=None, ai_profiles_cfg=None):
+def run_campaign(player, campaign_cfg, characters_db, items_db, defense_cfg=None, consumables_cfg=None, ai_profiles_cfg=None, campaign_instance=None):
     from models import Campaign, Character
+    from data_loader import save_game_state
 
-    campaign = Campaign(campaign_cfg)
+    campaign = campaign_instance if campaign_instance is not None else Campaign(campaign_cfg)
     print("\n" + "=" * 55)
     print(f"MODO CAMPANHA: {campaign.name.upper()}")
     if campaign.description:
         print(f"{campaign.description}")
     print("=" * 55)
 
-    stage_num = 1
     total_stages = len(campaign.stages)
 
     while not campaign.is_completed():
+        stage_num = campaign.current_stage_index + 1
         stage = campaign.get_current_stage()
         enemy_name = stage.get('enemy')
         enemy_data = characters_db.get(enemy_name)
@@ -497,7 +498,15 @@ def run_campaign(player, campaign_cfg, characters_db, items_db, defense_cfg=None
             print(f"Status Atual -> HP: {player.hp}/{player.max_hp} | Ki: {player.ki}/{player.max_ki}")
 
         campaign.advance_stage()
-        stage_num += 1
+
+        # Auto-save após avançar de fase
+        save_payload = {
+            "player": player.to_dict(),
+            "campaign": campaign.to_dict(),
+        }
+        saved, _ = save_game_state(save_payload)
+        if saved:
+            print("[SAVE] Progresso salvo automaticamente em save.json!")
 
         if not campaign.is_completed():
             try:

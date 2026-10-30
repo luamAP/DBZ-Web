@@ -27,6 +27,25 @@ class Campaign:
             "is_completed": self.is_completed()
         }
 
+    def to_dict(self):
+        return {
+            "campaign_id": self.id,
+            "current_stage_index": self.current_stage_index,
+            "is_completed": self.is_completed()
+        }
+
+    def load_state(self, state):
+        if not isinstance(state, dict):
+            return False, {"reason": "invalid_state_format"}
+        if "current_stage_index" in state:
+            idx = int(state["current_stage_index"])
+            self.current_stage_index = max(0, min(idx, len(self.stages)))
+            return True, {
+                "current_stage_index": self.current_stage_index,
+                "is_completed": self.is_completed()
+            }
+        return False, {"reason": "missing_stage_index"}
+
     @staticmethod
     def resolve_drops(stage_data, rng=random.random):
         dropped = []
