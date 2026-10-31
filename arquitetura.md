@@ -24,6 +24,7 @@
 | `tests/test_combat_flow.py` | Ações, Ki, defesas |
 | `tests/test_ai.py` | Decisão da IA por personalidade (agressivo, defensivo, tático) |
 | `tests/test_domain_purity.py` | AST: pureza de `models/` |
+| `tests/test_data_integrity.py` | Integridade e validação de esquemas e referências cruzadas dos YAMLs |
 | `run_tests.py` | Roda `tests/`; console = resumo + falhas; log completo em `logs/log_<fase>.txt` |
 | `.github/workflows/tests.yml` | Pipeline de CI/CD: execução automatizada de testes no GitHub Actions |
 | `ROADMAP.md` | Roadmap ativo (Versão 2.0 Web Game Boy) |
