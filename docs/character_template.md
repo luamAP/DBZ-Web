@@ -6,6 +6,17 @@ Este documento descreve a especificação de esquema utilizada em `data/characte
 
 ## 📌 Especificação dos Campos
 
+### Configurações Globais de Combate (`combat_mechanics`)
+
+| Campo | Tipo | Descrição |
+| :--- | :--- | :--- |
+| `charge_ki.min` / `max` | Inteiro | Faixa mínima e máxima de Ki recuperado ao concentrar energia |
+| `damage_variance.basic.min` / `max` | Inteiro | Variação somada ao dano base no golpe básico |
+| `damage_variance.combo.min` / `max` | Inteiro | Variação somada ao dano base de cada golpe do combo |
+| `damage_variance.special.min` / `max` | Inteiro | Variação somada ao dano base no golpe especial |
+
+### Combatentes
+
 | Campo | Tipo | Descrição |
 | :--- | :--- | :--- |
 | `name` | String | Nome visível do guerreiro em combate |

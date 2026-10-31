@@ -1,7 +1,51 @@
+import inspect
 import random
 
+
+def _resolve_randint(rng):
+    if rng is None:
+        return random.randint
+    if hasattr(rng, 'randint'):
+        return rng.randint
+    if callable(rng):
+        try:
+            sig = inspect.signature(rng)
+            params = list(sig.parameters.values())
+            has_varargs = any(p.kind == inspect.Parameter.VAR_POSITIONAL for p in params)
+            pos_count = len([
+                p for p in params
+                if p.kind in (inspect.Parameter.POSITIONAL_ONLY, inspect.Parameter.POSITIONAL_OR_KEYWORD)
+            ])
+            if has_varargs or pos_count >= 2:
+                return rng
+        except (ValueError, TypeError):
+            pass
+    return random.randint
+
+
+def _resolve_random(rng):
+    if rng is None:
+        return random.random
+    if hasattr(rng, 'random'):
+        return rng.random
+    if callable(rng):
+        try:
+            sig = inspect.signature(rng)
+            params = list(sig.parameters.values())
+            has_varargs = any(p.kind == inspect.Parameter.VAR_POSITIONAL for p in params)
+            pos_count = len([
+                p for p in params
+                if p.kind in (inspect.Parameter.POSITIONAL_ONLY, inspect.Parameter.POSITIONAL_OR_KEYWORD)
+            ])
+            if has_varargs or pos_count == 0:
+                return rng
+        except (ValueError, TypeError):
+            pass
+    return random.random
+
+
 class Character:
-    def __init__(self, data, initial_inventory=None):
+    def __init__(self, data, initial_inventory=None, combat_cfg=None):
         self.raw_name = data['name']
         self.name = data['name']
         self.raw_max_hp = data['hp']
@@ -21,6 +65,7 @@ class Character:
         self.transformations = list(data.get('transformations', []))
         self.current_transformation = None
         self.ai_profile = data.get('ai_profile', 'tatico')
+        self.combat_cfg = dict(combat_cfg) if combat_cfg else {}
         self.equipped_items = []
         self.inventory = dict(initial_inventory) if initial_inventory else {}
         self.defensive_stance = None
@@ -178,13 +223,19 @@ class Character:
         self.defensive_stance = stance_type
         return {"stance": stance_type, "name": self.name}
 
-    def charge_ki(self):
+    def charge_ki(self, combat_cfg=None, rng=None):
         self.is_charging = True
-        amount = random.randint(15, 30)
+        cfg = combat_cfg if combat_cfg is not None else self.combat_cfg
+        ki_cfg = cfg.get('charge_ki', {'min': 15, 'max': 30}) if cfg else {'min': 15, 'max': 30}
+        ki_min = ki_cfg.get('min', 15)
+        ki_max_gain = ki_cfg.get('max', 30)
+
+        rand_int = _resolve_randint(rng)
+        amount = rand_int(ki_min, ki_max_gain)
         self.ki = min(self.ki + amount, self.max_ki)
         return {"amount": amount, "ki_now": self.ki, "max_ki": self.max_ki, "name": self.name}
 
-    def apply_incoming_damage(self, raw_damage, attacker, defense_cfg):
+    def apply_incoming_damage(self, raw_damage, attacker, defense_cfg, rng=None):
         stance = self.defensive_stance
         event = {"target": self.name, "stance": stance, "evaded": False, "damage_taken": 0, "reflected_damage": 0, "attacker_name": attacker.name}
 
@@ -194,7 +245,8 @@ class Character:
 
         if stance == 'dodge':
             dodge_chance = defense_cfg.get('dodge', {}).get('success_rate', 0.60)
-            if random.random() <= dodge_chance:
+            rand_val = _resolve_random(rng)
+            if rand_val() <= dodge_chance:
                 event["evaded"] = True
                 return event
 
@@ -223,22 +275,27 @@ class Character:
         event["damage_taken"] = effective_damage
         return event
 
-    def execute_move(self, move, target, defense_cfg=None):
+    def execute_move(self, move, target, defense_cfg=None, combat_cfg=None, rng=None):
         cfg = defense_cfg or {}
+        c_cfg = combat_cfg if combat_cfg is not None else self.combat_cfg
         if move['type'] == 'basic':
-            return self._basic_attack(target, move['name'], cfg)
+            return self._basic_attack(target, move['name'], cfg, c_cfg, rng)
         elif move['type'] == 'combo':
-            return self._combo_attack(target, move, cfg)
+            return self._combo_attack(target, move, cfg, c_cfg, rng)
         elif move['type'] == 'special':
-            return self._special_attack(target, move, cfg)
+            return self._special_attack(target, move, cfg, c_cfg, rng)
         return False, {"msg": "Tipo de movimento invalido."}
 
-    def _basic_attack(self, target, move_name, defense_cfg):
-        raw_damage = random.randint(self.base_attack - 4, self.base_attack + 4)
-        target_event = target.apply_incoming_damage(raw_damage, self, defense_cfg)
+    def _basic_attack(self, target, move_name, defense_cfg, combat_cfg=None, rng=None):
+        var_cfg = (combat_cfg or {}).get('damage_variance', {}).get('basic', {'min': -4, 'max': 4})
+        var_min = var_cfg.get('min', -4)
+        var_max = var_cfg.get('max', 4)
+        rand_int = _resolve_randint(rng)
+        raw_damage = max(1, self.base_attack + rand_int(var_min, var_max))
+        target_event = target.apply_incoming_damage(raw_damage, self, defense_cfg, rng=rng)
         return True, {"type": "basic", "attacker": self.name, "move_name": move_name, "target_event": target_event}
 
-    def _combo_attack(self, target, move, defense_cfg):
+    def _combo_attack(self, target, move, defense_cfg, combat_cfg=None, rng=None):
         ki_cost = move.get('ki_cost', 0)
         if self.ki < ki_cost:
             return False, {"msg": f"Ki insuficiente. Custo: {ki_cost}", "ki_cost": ki_cost}
@@ -248,22 +305,28 @@ class Character:
         hit_chance = move.get('hit_chance', 0.8)
         multiplier = move.get('multiplier', 0.5)
 
+        var_cfg = (combat_cfg or {}).get('damage_variance', {}).get('combo', {'min': -2, 'max': 2})
+        var_min = var_cfg.get('min', -2)
+        var_max = var_cfg.get('max', 2)
+        rand_val = _resolve_random(rng)
+        rand_int = _resolve_randint(rng)
+
         successful_hits = 0
         total_damage = 0
         hit_results = []
 
         for i in range(1, hits_total + 1):
-            if random.random() <= hit_chance:
+            if rand_val() <= hit_chance:
                 successful_hits += 1
-                hit_damage = int(random.randint(self.base_attack - 2, self.base_attack + 2) * multiplier)
-                total_damage += hit_damage
+                hit_damage = int((self.base_attack + rand_int(var_min, var_max)) * multiplier)
+                total_damage += max(1, hit_damage)
                 hit_results.append(True)
             else:
                 hit_results.append(False)
 
         target_event = None
         if total_damage > 0:
-            target_event = target.apply_incoming_damage(total_damage, self, defense_cfg)
+            target_event = target.apply_incoming_damage(total_damage, self, defense_cfg, rng=rng)
 
         return True, {
             "type": "combo", "attacker": self.name, "move_name": move['name'], 
@@ -271,15 +334,19 @@ class Character:
             "hit_results": hit_results, "target_event": target_event
         }
 
-    def _special_attack(self, target, move, defense_cfg):
+    def _special_attack(self, target, move, defense_cfg, combat_cfg=None, rng=None):
         ki_cost = move['ki_cost']
         multiplier = move['multiplier']
         move_name = move['name']
 
         if self.ki >= ki_cost:
             self.ki -= ki_cost
-            raw_damage = int(random.randint(self.base_attack, self.base_attack + 8) * multiplier)
-            target_event = target.apply_incoming_damage(raw_damage, self, defense_cfg)
+            var_cfg = (combat_cfg or {}).get('damage_variance', {}).get('special', {'min': 0, 'max': 8})
+            var_min = var_cfg.get('min', 0)
+            var_max = var_cfg.get('max', 8)
+            rand_int = _resolve_randint(rng)
+            raw_damage = max(1, int((self.base_attack + rand_int(var_min, var_max)) * multiplier))
+            target_event = target.apply_incoming_damage(raw_damage, self, defense_cfg, rng=rng)
             return True, {"type": "special", "attacker": self.name, "move_name": move_name, "target_event": target_event}
         return False, {"msg": f"Ki insuficiente. Custo: {ki_cost}", "ki_cost": ki_cost}
 

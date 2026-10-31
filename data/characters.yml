@@ -1,3 +1,18 @@
+combat_mechanics:
+  charge_ki:
+    min: 15
+    max: 30
+  damage_variance:
+    basic:
+      min: -4
+      max: 4
+    combo:
+      min: -2
+      max: 2
+    special:
+      min: 0
+      max: 8
+
 defense_mechanics:
   block:
     damage_reduction: 0.50

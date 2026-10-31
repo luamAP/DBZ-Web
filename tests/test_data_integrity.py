@@ -8,7 +8,7 @@ from engine.data_loader import (
     _get_data_dir,
 )
 
-RESERVED_CHARACTER_KEYS = {"defense_mechanics", "ai_profiles"}
+RESERVED_CHARACTER_KEYS = {"defense_mechanics", "ai_profiles", "combat_mechanics"}
 ALLOWED_STAT_MULTIPLIERS = {"attack", "defense", "speed"}
 ALLOWED_STAT_BONUSES = {"hp", "ki_max"}
 MANDATORY_COMBATANTS = {"Goku", "Vegeta", "Frieza"}
@@ -121,7 +121,27 @@ class TestDataIntegrity(unittest.TestCase):
             with self.subTest(campaign=camp_id):
                 self.assertIn(camp_id, campaigns, f"Campanha obrigatória '{camp_id}' não está em campaign.yml.")
 
-    # --- Testes de Mecânicas de Defesa e IA ---
+    # --- Testes de Mecânicas de Defesa, Combate e IA ---
+
+    def test_combat_mechanics_integrity(self):
+        """Valida que characters.yml contém combat_mechanics válidos com faixas de Ki e variações de dano."""
+        self.assertIn("combat_mechanics", self.characters_data)
+        combat = self.characters_data["combat_mechanics"]
+
+        # charge_ki
+        self.assertIn("charge_ki", combat)
+        self._assert_int(combat["charge_ki"].get("min"), "charge_ki.min", min_val=1)
+        self._assert_int(combat["charge_ki"].get("max"), "charge_ki.max", min_val=combat["charge_ki"]["min"])
+
+        # damage_variance
+        self.assertIn("damage_variance", combat)
+        variances = combat["damage_variance"]
+        for m_type in ("basic", "combo", "special"):
+            with self.subTest(move_type=m_type):
+                self.assertIn(m_type, variances)
+                v_cfg = variances[m_type]
+                self._assert_int(v_cfg.get("min"), f"damage_variance.{m_type}.min")
+                self._assert_int(v_cfg.get("max"), f"damage_variance.{m_type}.max", min_val=v_cfg["min"])
 
     def test_defense_mechanics_integrity(self):
         """Valida que characters.yml contém defense_mechanics válidos."""

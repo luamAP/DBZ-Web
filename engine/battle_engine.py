@@ -284,9 +284,10 @@ def render_action_event(action_type, ev_data):
         time.sleep(1)
 
 
-def battle_team(player_team, enemy_team, defense_cfg=None, consumables_cfg=None, ai_profiles_cfg=None):
+def battle_team(player_team, enemy_team, defense_cfg=None, consumables_cfg=None, ai_profiles_cfg=None, combat_cfg=None):
     cfg_def = defense_cfg or {}
     cfg_cons = consumables_cfg or {}
+    cfg_combat = combat_cfg or {}
     print("\n" * 5)
     print(f"=== BATALHA: {player_team.name} vs {enemy_team.name}! ===")
     time.sleep(1.5)
@@ -315,14 +316,14 @@ def battle_team(player_team, enemy_team, defense_cfg=None, consumables_cfg=None,
 
                     if choice <= total_moves:
                         move = current_player.moves[choice - 1]
-                        success, ev_data = current_player.execute_move(move, current_enemy, cfg_def)
+                        success, ev_data = current_player.execute_move(move, current_enemy, cfg_def, cfg_combat)
                         if success:
                             render_action_event('move', ev_data)
                             valid_turn = True
                         else:
                             print(f"\n[!] {ev_data.get('msg')}")
                     elif choice == charge_opt:
-                        ev_data = current_player.charge_ki()
+                        ev_data = current_player.charge_ki(cfg_combat)
                         render_action_event('charge', ev_data)
                         valid_turn = True
                     elif choice == defend_opt:
@@ -385,7 +386,7 @@ def battle_team(player_team, enemy_team, defense_cfg=None, consumables_cfg=None,
                 print_status(current_player, current_enemy)
                 print(f"\n--- Turno de {current_enemy.name} ---")
                 time.sleep(1)
-                ai_action = execute_ai_turn(current_enemy, current_player, cfg_def, ai_profiles_cfg)
+                ai_action = execute_ai_turn(current_enemy, current_player, cfg_def, ai_profiles_cfg, cfg_combat)
                 if ai_action:
                     action_type, ev_data = ai_action
                     render_action_event(action_type, ev_data)
@@ -424,13 +425,13 @@ def battle_team(player_team, enemy_team, defense_cfg=None, consumables_cfg=None,
     return player_team.has_alive_members()
 
 
-def battle(player, enemy, defense_cfg=None, consumables_cfg=None, ai_profiles_cfg=None):
+def battle(player, enemy, defense_cfg=None, consumables_cfg=None, ai_profiles_cfg=None, combat_cfg=None):
     p_team = Team(player.name, [player])
     e_team = Team(enemy.name, [enemy])
-    return battle_team(p_team, e_team, defense_cfg, consumables_cfg, ai_profiles_cfg)
+    return battle_team(p_team, e_team, defense_cfg, consumables_cfg, ai_profiles_cfg, combat_cfg)
 
 
-def run_campaign(player, campaign_cfg, characters_db, items_db, defense_cfg=None, consumables_cfg=None, ai_profiles_cfg=None, campaign_instance=None):
+def run_campaign(player, campaign_cfg, characters_db, items_db, defense_cfg=None, consumables_cfg=None, ai_profiles_cfg=None, combat_cfg=None, campaign_instance=None):
     from models import Campaign, Character
     from engine.data_loader import save_game_state
 
@@ -452,7 +453,7 @@ def run_campaign(player, campaign_cfg, characters_db, items_db, defense_cfg=None
             print(f"\n[ERRO] Oponente '{enemy_name}' nao encontrado nos dados de personagens!")
             return False
 
-        enemy = Character(enemy_data)
+        enemy = Character(enemy_data, combat_cfg=combat_cfg)
 
         print("\n" + "#" * 50)
         print(f"FASE {stage_num}/{total_stages}: {stage.get('name', enemy.name)}")
@@ -460,7 +461,7 @@ def run_campaign(player, campaign_cfg, characters_db, items_db, defense_cfg=None
         print("#" * 50)
         time.sleep(1)
 
-        won = battle(player, enemy, defense_cfg, consumables_cfg, ai_profiles_cfg)
+        won = battle(player, enemy, defense_cfg, consumables_cfg, ai_profiles_cfg, combat_cfg)
         if not won or not player.is_alive():
             print(f"\n[FIM DE JOGO] {player.name} foi superado na Fase {stage_num}. A campanha terminou.")
             return False

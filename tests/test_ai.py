@@ -1,5 +1,4 @@
 import unittest
-from unittest.mock import patch
 
 from models import Character
 from engine.data_loader import load_characters_data
@@ -39,11 +38,10 @@ class TestAIController(unittest.TestCase):
     def test_aggressive_profile_prioritizes_specials_when_ki_available(self):
         # Garante Ki maximo para poder executar special
         self.vegeta.ki = 100
-        # Simula random para favorecer ramo de special
-        with patch('random.random', return_value=0.1):
-            action_type, ev_data = execute_ai_turn(
-                self.vegeta, self.goku, self.defense_cfg, self.ai_profiles_cfg
-            )
+        # Injeta rng deterministico para favorecer ramo de special sem monkey patch
+        action_type, ev_data = execute_ai_turn(
+            self.vegeta, self.goku, self.defense_cfg, self.ai_profiles_cfg, rng=lambda: 0.1
+        )
         self.assertEqual(action_type, 'move')
         self.assertEqual(ev_data['move_name'], 'Final Flash')
 
@@ -53,10 +51,10 @@ class TestAIController(unittest.TestCase):
         self.frieza.ki = 30
         self.goku.ki = 50
 
-        with patch('random.random', return_value=0.1):
-            action_type, ev_data = execute_ai_turn(
-                self.frieza, self.goku, self.defense_cfg, self.ai_profiles_cfg
-            )
+        # Injeta rng deterministico sem monkey patch
+        action_type, ev_data = execute_ai_turn(
+            self.frieza, self.goku, self.defense_cfg, self.ai_profiles_cfg, rng=lambda: 0.1
+        )
         self.assertEqual(action_type, 'defend')
         self.assertIn(ev_data['stance'], ['vanish', 'counter', 'dodge', 'block'])
 
