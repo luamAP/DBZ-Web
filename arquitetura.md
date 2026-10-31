@@ -24,7 +24,8 @@
 | `tests/test_domain_purity.py` | AST: pureza de `models/` |
 | `run_tests.py` | Roda `tests/`; console = resumo + falhas; log completo em `logs/log_<fase>.txt` |
 | `.github/workflows/tests.yml` | Pipeline de CI/CD: execução automatizada de testes no GitHub Actions |
-| `ROADMAP.md` | Itens pendentes |
+| `ROADMAP.md` | Roadmap ativo (Versão 2.0 Web Game Boy) |
+| `ROADMAP_v1.md` | Histórico de fases concluídas (Versão 1.0 CLI) |
 | `.agents/rules/` | Regras do agente |
 
 **Dependências:** yml → `data_loader` → `main` / `tests` → `battle_engine` → `models`, `ai_controller`.
