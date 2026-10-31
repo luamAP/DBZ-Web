@@ -1,6 +1,6 @@
 # 📖 Guia de Criação e Configuração de Personagens
 
-Este documento descreve a especificação de esquema utilizada em `characters.yml` para a adição de novos combatentes à arquitetura *Data-Driven* do jogo.
+Este documento descreve a especificação de esquema utilizada em `data/characters.yml` para a adição de novos combatentes à arquitetura *Data-Driven* do jogo.
 
 ---
 
@@ -35,7 +35,7 @@ Todo combatente deve conter a seguinte estrutura balanceada:
 
 ## 🧬 Modelo Base / Template
 
-Copie o bloco abaixo e cole em `characters.yml` preenchendo os valores:
+Copie o bloco abaixo e cole em `data/characters.yml` preenchendo os valores:
 
 ```yaml
 NomeDoLutador:

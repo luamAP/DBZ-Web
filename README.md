@@ -18,7 +18,7 @@ Para a documentação completa dos componentes, contratos de dados, fluxo de dep
 O ecossistema é totalmente orientado a dados, permitindo a inclusão de lutadores sem alteração no código Python.
 
 Para consultar a especificação completa dos campos, regras de balanceamento de técnicas e copiar o template YAML pronto para uso, consulte:
-👉 **[Guia de Criação de Personagens (`character_template.md`)](character_template.md)**
+👉 **[Guia de Criação de Personagens (`character_template.md`)](docs/character_template.md)**
 
 ---
 
