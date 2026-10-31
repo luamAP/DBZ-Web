@@ -2,8 +2,8 @@ import unittest
 from unittest.mock import patch
 
 from models import Character
-from data_loader import load_characters_data
-from ai_controller import execute_ai_turn
+from engine.data_loader import load_characters_data
+from engine.ai_controller import execute_ai_turn
 
 
 class TestAIController(unittest.TestCase):

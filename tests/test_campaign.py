@@ -1,6 +1,6 @@
 import unittest
 from models import Campaign, Character
-from data_loader import load_campaign_data, load_characters_data, load_items_data
+from engine.data_loader import load_campaign_data, load_characters_data, load_items_data
 
 
 class TestCampaign(unittest.TestCase):

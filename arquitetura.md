@@ -2,15 +2,17 @@
 
 | Arquivo | Responsabilidade |
 | --- | --- |
-| `characters.yml` | Lutadores, técnicas, transformações, parâmetros de defesa |
-| `items.yml` | Equipamentos e consumíveis |
-| `campaign.yml` | Campanhas, fases sequenciais, oponentes e tabelas de drops |
-| `character_template.md` | Esquema de lutadores |
-| `campaign_template.md` | Esquema de campanhas e drops |
-| `data_loader.py` | I/O YAML e save/load de `save.json`; `create_initial_inventory` |
-| `main.py` | CLI, menu, inicialização via `data_loader` |
-| `battle_engine.py` | Loop de turnos (`battle`, `battle_team`), modo campanha, menus e todo texto de UI |
-| `ai_controller.py` | Decisão heurística da IA (Ki, HP, defesa) |
+| `data/characters.yml` | Lutadores, técnicas, transformações, parâmetros de defesa |
+| `data/items.yml` | Equipamentos e consumíveis |
+| `data/campaign.yml` | Campanhas, fases sequenciais, oponentes e tabelas de drops |
+| `docs/character_template.md` | Esquema de lutadores |
+| `docs/campaign_template.md` | Esquema de campanhas e drops |
+| `docs/ROADMAP_v1.md` | Histórico de fases concluídas (Versão 1.0 CLI) |
+| `engine/__init__.py` | Fachada: exporta funções de `data_loader`, `battle_engine` e `ai_controller` |
+| `engine/data_loader.py` | I/O YAML (`data/`) e save/load de `save.json`; `create_initial_inventory` |
+| `engine/battle_engine.py` | Loop de turnos (`battle`, `battle_team`), modo campanha, menus e todo texto de UI |
+| `engine/ai_controller.py` | Decisão heurística da IA (Ki, HP, defesa) |
+| `main.py` | CLI, menu, inicialização via `engine` |
 | `models/__init__.py` | Fachada: exporta `Character`, `Team`, `Campaign` |
 | `models/character.py` | Stats, `_recalculate_stats`, equip/unequip, consumíveis, recuperação, transformação, serialização (`to_dict`/`load_state`), `execute_move`, `apply_incoming_damage` |
 | `models/team.py` | Tag Team: ativo, `get_bench_members`, `switch_member`, `auto_switch_next_alive` |
@@ -25,7 +27,6 @@
 | `run_tests.py` | Roda `tests/`; console = resumo + falhas; log completo em `logs/log_<fase>.txt` |
 | `.github/workflows/tests.yml` | Pipeline de CI/CD: execução automatizada de testes no GitHub Actions |
 | `ROADMAP.md` | Roadmap ativo (Versão 2.0 Web Game Boy) |
-| `ROADMAP_v1.md` | Histórico de fases concluídas (Versão 1.0 CLI) |
 | `.agents/rules/` | Regras do agente |
 
-**Dependências:** yml → `data_loader` → `main` / `tests` → `battle_engine` → `models`, `ai_controller`.
+**Dependências:** `data/*.yml` → `engine.data_loader` → `main` / `tests` → `engine.battle_engine` → `models`, `engine.ai_controller`.

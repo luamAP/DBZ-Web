@@ -1,8 +1,8 @@
 import sys
 
 from models import Character, Team, Campaign
-from battle_engine import battle, battle_team, manage_equipment_menu, run_campaign
-from data_loader import (
+from engine.battle_engine import battle, battle_team, manage_equipment_menu, run_campaign
+from engine.data_loader import (
     load_characters_data,
     load_items_data,
     load_campaign_data,

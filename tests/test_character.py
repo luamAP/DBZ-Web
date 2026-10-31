@@ -1,6 +1,6 @@
 import unittest
 from models import Character
-from data_loader import load_characters_data, load_items_data, create_initial_inventory
+from engine.data_loader import load_characters_data, load_items_data, create_initial_inventory
 
 
 class TestCharacter(unittest.TestCase):

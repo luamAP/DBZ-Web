@@ -1,5 +1,5 @@
 import time
-from ai_controller import execute_ai_turn
+from engine.ai_controller import execute_ai_turn
 from models import Team
 
 
@@ -432,7 +432,7 @@ def battle(player, enemy, defense_cfg=None, consumables_cfg=None, ai_profiles_cf
 
 def run_campaign(player, campaign_cfg, characters_db, items_db, defense_cfg=None, consumables_cfg=None, ai_profiles_cfg=None, campaign_instance=None):
     from models import Campaign, Character
-    from data_loader import save_game_state
+    from engine.data_loader import save_game_state
 
     campaign = campaign_instance if campaign_instance is not None else Campaign(campaign_cfg)
     print("\n" + "=" * 55)

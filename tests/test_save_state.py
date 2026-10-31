@@ -4,7 +4,7 @@ import tempfile
 import unittest
 
 from models import Character, Campaign
-from data_loader import save_game_state, load_game_state
+from engine.data_loader import save_game_state, load_game_state
 
 
 class TestSaveState(unittest.TestCase):

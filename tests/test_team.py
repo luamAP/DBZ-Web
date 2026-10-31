@@ -1,6 +1,6 @@
 import unittest
 from models import Character, Team
-from data_loader import load_characters_data
+from engine.data_loader import load_characters_data
 
 
 class TestTeam(unittest.TestCase):
