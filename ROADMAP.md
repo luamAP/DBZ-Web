@@ -10,7 +10,7 @@ Mantém o `unittest` como runner; `hypothesis` e `coverage` se integram a ele.
 
 - [x] **Integridade dos YAMLs:** `tests/test_data_integrity.py` valida campos obrigatórios, valores válidos (`hp > 0`, `multiplier > 0`) e referências cruzadas (`enemy` → `characters.yml`, drops → `items.yml`, `ai_profile` → `ai_profiles`).
 - [x] **RNG data-driven e injetável:** mover as faixas de dano/Ki hoje fixas em `models/character.py` para `data/characters.yml` e receber o `rng` como parâmetro (padrão já usado em `resolve_drops`), eliminando `patch` nos testes.
-- [ ] **Testes property-based (`hypothesis`):** invariantes de HP/Ki dentro dos limites, inventário nunca negativo, equip/unequip reversível, `to_dict` → `load_state` idempotente.
+- [x] **Testes property-based (`hypothesis`):** invariantes de HP/Ki dentro dos limites, inventário nunca negativo, equip/unequip reversível, `to_dict` → `load_state` idempotente.
 - [ ] **Cobertura (`coverage.py`):** integrada ao `run_tests.py` (resumo no console, relatório em `logs/`) e ao CI.
 
 ## Fase 1: Servidor Flask e Carcaça Game Boy Mobile-First

@@ -1,2 +1,3 @@
 # Dependências do Projeto Dragon Ball Z Text Battle
 PyYAML>=6.0
+hypothesis>=6.0.0
