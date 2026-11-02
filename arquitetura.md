@@ -8,6 +8,7 @@
 | `docs/character_template.md` | Esquema de lutadores |
 | `docs/campaign_template.md` | Esquema de campanhas e drops |
 | `docs/ROADMAP_v1.md` | Histórico de fases concluídas (Versão 1.0 CLI) |
+| `docs/plans/` | Relatórios de execução (um por item do ROADMAP) |
 | `engine/__init__.py` | Fachada: exporta funções de `data_loader`, `battle_engine` e `ai_controller` |
 | `engine/data_loader.py` | I/O YAML (`data/`) e save/load de `save.json`; `create_initial_inventory` |
 | `engine/battle_engine.py` | Loop de turnos (`battle`, `battle_team`), modo campanha, menus e todo texto de UI |
@@ -29,7 +30,5 @@
 | `.github/workflows/tests.yml` | Pipeline de CI/CD: execução automatizada de testes no GitHub Actions |
 | `ROADMAP.md` | Roadmap ativo (Versão 2.0 Web Game Boy) |
 | `.agents/rules/` | Regras do agente |
-| `docs/plan_template.md` | Modelo do relatório de execução por item do ROADMAP |
-| `docs/plans/` | Relatórios de execução (um por item do ROADMAP) |
 
 **Dependências:** `data/*.yml` → `engine.data_loader` → `main` / `tests` → `engine.battle_engine` → `models`, `engine.ai_controller`.
