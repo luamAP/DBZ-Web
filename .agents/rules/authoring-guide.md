@@ -1,20 +1,14 @@
 ---
 trigger: model_decision
-description: Ao criar ou alterar regras/skills.
+description: Ao criar, alterar ou remover regras/skills.
 ---
+# Como escrever regras
 
-# Como escrever regras neste projeto
-
-- **Uma responsabilidade por arquivo.** Se o título precisar de "e", divida.
-
-- **Curta e imperativa.** Meta: até ~40 linhas, sem justificativa longa.
-
-- **Verificável.** Prefira regras que um teste, linter ou CI consiga checar. Se não for verificável, diga como o agente deve confirmar o cumprimento.
-
-- **Sem duplicação.** Cada fato mora em um só arquivo; os demais apontam para ele.
-
-- **Tipo certo.** Regra = restrição/invariante. Skill = procedimento de vários passos. Preferência da máquina local = config global, nunca no repositório.
-
-- **Mudanças só por proposta.** O agente nunca edita regras sozinho: propõe via `/learn` (artefato `learning_proposal.md`) com diff e justificativa, e aplica apenas após aprovação.
-
-- **Poda.** Ao propor uma regra nova, verificar se alguma existente ficou obsoleta ou conflitante e propor sua remoção.
+- **Uma responsabilidade por arquivo:** se o título pede "e", divida.
+- **Curta e imperativa:** até ~40 linhas, sem justificativas.
+- **Verificável:** prefira o que teste/linter/CI checa; senão, diga como o agente confirma.
+- **Sem duplicação:** cada fato em um só arquivo; os demais apontam para ele.
+- **Tipo certo:** regra = restrição; skill = procedimento de vários passos; preferência da máquina local = config global, fora do repo.
+- **Gatilho:** `always_on` só para o que vale em toda tarefa; o resto é `model_decision` com `description` específica.
+- **Mudança só por proposta:** nunca editar regras sozinho; propor via `/learn` (`learning_proposal.md`) com diff e justificativa; aplicar após aprovação.
+- **Poda:** a cada proposta, apontar regras obsoletas ou conflitantes e propor remoção.

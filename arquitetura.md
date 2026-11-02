@@ -29,5 +29,7 @@
 | `.github/workflows/tests.yml` | Pipeline de CI/CD: execução automatizada de testes no GitHub Actions |
 | `ROADMAP.md` | Roadmap ativo (Versão 2.0 Web Game Boy) |
 | `.agents/rules/` | Regras do agente |
+| `docs/plan_template.md` | Modelo do relatório de execução por item do ROADMAP |
+| `docs/plans/` | Relatórios de execução (um por item do ROADMAP) |
 
 **Dependências:** `data/*.yml` → `engine.data_loader` → `main` / `tests` → `engine.battle_engine` → `models`, `engine.ai_controller`.
