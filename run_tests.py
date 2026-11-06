@@ -38,6 +38,18 @@ def run_suite():
     os.makedirs(logs_dir, exist_ok=True)
     log_path = os.path.join(logs_dir, f"log_{phase}.txt")
 
+    cov = None
+    try:
+        import coverage
+        cov = coverage.Coverage(
+            source=["models", "engine"],
+            branch=True,
+            data_file=None,
+        )
+        cov.start()
+    except ImportError:
+        pass
+
     suite = unittest.TestLoader().discover(
         start_dir=os.path.join(project_root, "tests"),
         pattern="test_*.py",
@@ -49,12 +61,23 @@ def run_suite():
             redirect_stdout(log_file), redirect_stderr(log_file):
         result = unittest.TextTestRunner(stream=log_file, verbosity=2).run(suite)
 
+    cov_total = None
+    cov_report_path = None
+    if cov:
+        cov.stop()
+        cov.save()
+        cov_report_path = os.path.join(logs_dir, f"coverage_{phase}.txt")
+        with open(cov_report_path, "w", encoding="utf-8") as cov_file:
+            cov_total = cov.report(file=cov_file)
+
     problems = [("FAIL", t, tb) for t, tb in result.failures]
     problems += [("ERROR", t, tb) for t, tb in result.errors]
 
     status = "OK" if result.wasSuccessful() else "FALHOU"
     print(f"{status}: {result.testsRun} testes | {len(result.failures)} falhas | "
           f"{len(result.errors)} erros | {len(result.skipped)} ignorados")
+    if cov_total is not None:
+        print(f"Cobertura: {cov_total:.1f}% | Relatório: {cov_report_path}")
     for kind, test, trace in problems:
         print(f"\n[{kind}] {test.id()}\n{_tail(trace)}")
     print(f"\nLog completo: {log_path}")

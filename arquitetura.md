@@ -27,7 +27,7 @@
 | `tests/test_domain_purity.py` | AST: pureza de `models/` |
 | `tests/test_data_integrity.py` | Integridade e validação de esquemas e referências cruzadas dos YAMLs |
 | `tests/test_properties.py` | Testes baseados em propriedades (Hypothesis): invariantes de domínio |
-| `run_tests.py` | Roda `tests/`; console = resumo + falhas; log completo em `logs/log_<fase>.txt` |
+| `run_tests.py` | Roda `tests/`; console = resumo + falhas + cobertura; logs detalhados em `logs/` |
 | `.github/workflows/tests.yml` | Pipeline de CI/CD: execução automatizada de testes no GitHub Actions |
 | `ROADMAP.md` | Roadmap ativo (Versão 2.0 Web Game Boy) |
 | `.agents/rules/` | Regras do agente |
