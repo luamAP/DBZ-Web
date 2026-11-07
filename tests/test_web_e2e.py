@@ -50,7 +50,7 @@ class TestWebE2E(unittest.TestCase):
 
     def test_e2e_full_battle_lifecycle_over_network(self):
         # 1. Health check HTTP real
-        status, body = self._http_request("GET", "/")
+        status, body = self._http_request("GET", "/?format=json")
         self.assertEqual(status, 200)
         self.assertEqual(body.get("status"), "ok")
 

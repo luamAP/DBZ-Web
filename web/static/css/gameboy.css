@@ -1,0 +1,577 @@
+/* ==========================================================================
+   Dragon Ball Z - Game Boy Edition (Mobile-First Stylesheet)
+   ========================================================================== */
+
+:root {
+    /* Paleta Clássica Game Boy DMG */
+    --gb-body: #d1cfc7;
+    --gb-body-shadow: #b3b0a6;
+    --gb-body-highlight: #eae8e1;
+    --gb-bezel: #76747b;
+    --gb-bezel-shadow: #5a585f;
+    --gb-screen-bg: #8bac0f;
+    --gb-screen-dark: #0f380f;
+    --gb-screen-mid: #306230;
+    --gb-screen-light: #9bbc0f;
+    --gb-dpad: #222225;
+    --gb-btn-ab: #8b1d43;
+    --gb-btn-select: #757579;
+    --gb-font: 'Courier New', Courier, monospace;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: manipulation;
+}
+
+html, body {
+    width: 100%;
+    height: 100%;
+    background-color: #1a1a1e;
+    font-family: var(--gb-font);
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.gameboy-viewport {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 8px;
+}
+
+/* ==========================================================================
+   Carcaça do Console Portátil
+   ========================================================================== */
+.gameboy-console {
+    width: 100%;
+    max-width: 440px;
+    height: 100%;
+    max-height: 880px;
+    background: var(--gb-body);
+    border-radius: 16px 16px 60px 16px;
+    box-shadow: 
+        inset 2px 2px 0 var(--gb-body-highlight),
+        inset -4px -6px 0 var(--gb-body-shadow),
+        0 12px 30px rgba(0, 0, 0, 0.6);
+    display: flex;
+    flex-direction: column;
+    padding: 16px 20px 24px 20px;
+    position: relative;
+}
+
+/* Linhas superiores decorativas */
+.console-top-stripes {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 8px;
+}
+
+.console-top-stripes .stripe {
+    flex: 1;
+    height: 3px;
+    background: var(--gb-body-shadow);
+    border-radius: 2px;
+}
+
+/* ==========================================================================
+   METADE SUPERIOR: Visor e Display LCD
+   ========================================================================== */
+.gameboy-screen-wrapper {
+    background: var(--gb-bezel);
+    border-radius: 12px 12px 36px 12px;
+    box-shadow: 
+        inset 3px 3px 6px rgba(0, 0, 0, 0.5),
+        inset -2px -2px 4px var(--gb-bezel-shadow);
+    padding: 12px 14px 16px 14px;
+    display: flex;
+    flex-direction: column;
+    flex: 1.1;
+    min-height: 260px;
+}
+
+.screen-bezel-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 6px;
+}
+
+.bezel-line {
+    flex: 1;
+    height: 2px;
+    background: linear-gradient(to right, #001f5f, #8b1d43);
+}
+
+.bezel-title {
+    font-size: 8px;
+    font-weight: bold;
+    letter-spacing: 1px;
+    color: #cfd0d3;
+    text-transform: uppercase;
+}
+
+.screen-inner-frame {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+/* Indicador de Bateria */
+.battery-indicator {
+    position: absolute;
+    left: -6px;
+    top: 40%;
+    transform: translateY(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    z-index: 2;
+}
+
+.battery-led {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #331111;
+    box-shadow: inset 1px 1px 2px rgba(0, 0, 0, 0.8);
+}
+
+.battery-led.active {
+    background: #f44336;
+    box-shadow: 0 0 6px #f44336;
+}
+
+.battery-label {
+    font-size: 6px;
+    color: #cfd0d3;
+    font-weight: bold;
+    letter-spacing: 0.5px;
+}
+
+/* Display LCD */
+.screen-display {
+    background: var(--gb-screen-bg);
+    border: 3px solid #2f3424;
+    border-radius: 6px;
+    box-shadow: inset 2px 2px 4px rgba(0, 0, 0, 0.4);
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    padding: 8px;
+    color: var(--gb-screen-dark);
+    font-family: var(--gb-font);
+    image-rendering: pixelated;
+    overflow: hidden;
+}
+
+/* Arena de Batalha Estilo Pokémon */
+.battle-arena {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto auto;
+    gap: 6px;
+    flex: 1;
+    align-items: center;
+}
+
+/* HUD do Oponente (Topo Esquerdo) e Sprite (Topo Direito) */
+.hud-opponent {
+    grid-column: 1;
+    grid-row: 1;
+    background: rgba(255, 255, 255, 0.2);
+    border: 2px solid var(--gb-screen-dark);
+    border-radius: 4px;
+    padding: 4px 6px;
+}
+
+.sprite-area.opponent {
+    grid-column: 2;
+    grid-row: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Sprite do Jogador (Base Esquerda) e HUD (Base Direita) */
+.sprite-area.player {
+    grid-column: 1;
+    grid-row: 2;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.hud-player {
+    grid-column: 2;
+    grid-row: 2;
+    background: rgba(255, 255, 255, 0.2);
+    border: 2px solid var(--gb-screen-dark);
+    border-radius: 4px;
+    padding: 4px 6px;
+}
+
+.hud-name-box {
+    display: flex;
+    justify-content: space-between;
+    font-weight: bold;
+    font-size: 11px;
+    margin-bottom: 3px;
+    border-bottom: 1px dashed var(--gb-screen-mid);
+    padding-bottom: 2px;
+}
+
+.stat-bar-group {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.bar-container {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.bar-label {
+    font-size: 9px;
+    font-weight: bold;
+    min-width: 14px;
+}
+
+.bar-track {
+    flex: 1;
+    height: 7px;
+    background: var(--gb-screen-mid);
+    border: 1px solid var(--gb-screen-dark);
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.bar-fill.hp {
+    height: 100%;
+    background: var(--gb-screen-dark);
+    transition: width 0.3s ease;
+}
+
+.bar-fill.ki {
+    height: 100%;
+    background: var(--gb-screen-light);
+    transition: width 0.3s ease;
+}
+
+.bar-values {
+    font-size: 8px;
+    font-weight: bold;
+    text-align: right;
+    line-height: 1;
+}
+
+.pixel-sprite-placeholder {
+    width: 64px;
+    height: 64px;
+    background: var(--gb-screen-mid);
+    color: var(--gb-screen-light);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 9px;
+    font-weight: bold;
+    border: 2px dashed var(--gb-screen-dark);
+    border-radius: 4px;
+}
+
+/* Caixa de Diálogo Retrô */
+.dialogue-box {
+    border: 2px solid var(--gb-screen-dark);
+    border-radius: 4px;
+    padding: 6px;
+    background: rgba(255, 255, 255, 0.25);
+    min-height: 52px;
+    display: flex;
+    align-items: center;
+}
+
+.dialogue-text {
+    font-size: 11px;
+    font-weight: bold;
+    line-height: 1.3;
+}
+
+/* Branding da Carcaça */
+.console-branding {
+    margin: 10px 0 6px 4px;
+}
+
+.brand-brand {
+    font-size: 10px;
+    font-weight: bold;
+    color: #1a237e;
+    font-style: italic;
+    margin-right: 6px;
+}
+
+.brand-model {
+    font-size: 14px;
+    font-weight: 900;
+    color: #1a237e;
+    font-style: italic;
+    letter-spacing: 1px;
+}
+
+.brand-model .trademark {
+    font-size: 7px;
+    vertical-align: super;
+}
+
+/* ==========================================================================
+   METADE INFERIOR: Controles Físicos Virtuais
+   ========================================================================== */
+.gameboy-controls-wrapper {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 1.2fr 1fr;
+    grid-template-rows: 1fr auto;
+    align-items: center;
+    position: relative;
+    padding-top: 8px;
+}
+
+/* D-Pad Clássico */
+.dpad-container {
+    grid-column: 1;
+    grid-row: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.dpad-cross {
+    width: 100px;
+    height: 100px;
+    position: relative;
+    background: transparent;
+}
+
+.dpad-btn {
+    position: absolute;
+    background: var(--gb-dpad);
+    border: none;
+    color: #444;
+    font-size: 11px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    box-shadow: 0 3px 0 #111;
+}
+
+.dpad-btn:active {
+    box-shadow: 0 1px 0 #111;
+    transform: translateY(2px);
+}
+
+.dpad-up {
+    top: 0;
+    left: 33px;
+    width: 34px;
+    height: 35px;
+    border-radius: 4px 4px 0 0;
+}
+
+.dpad-down {
+    bottom: 0;
+    left: 33px;
+    width: 34px;
+    height: 35px;
+    border-radius: 0 0 4px 4px;
+}
+
+.dpad-left {
+    top: 33px;
+    left: 0;
+    width: 35px;
+    height: 34px;
+    border-radius: 4px 0 0 4px;
+}
+
+.dpad-right {
+    top: 33px;
+    right: 0;
+    width: 35px;
+    height: 34px;
+    border-radius: 0 4px 4px 0;
+}
+
+.dpad-center {
+    position: absolute;
+    top: 33px;
+    left: 33px;
+    width: 34px;
+    height: 34px;
+    background: var(--gb-dpad);
+    box-shadow: inset 0 0 4px rgba(0, 0, 0, 0.4);
+}
+
+/* Botões A e B */
+.action-buttons-container {
+    grid-column: 2;
+    grid-row: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 16px;
+    transform: rotate(-25deg);
+}
+
+.action-btn-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+}
+
+.round-btn {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: var(--gb-btn-ab);
+    border: none;
+    color: #fff;
+    font-size: 13px;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 
+        inset 1px 1px 2px rgba(255, 255, 255, 0.4),
+        0 4px 0 #4a0d20,
+        0 6px 6px rgba(0, 0, 0, 0.4);
+}
+
+.round-btn:active {
+    box-shadow: 0 1px 0 #4a0d20;
+    transform: translateY(3px);
+}
+
+.btn-label {
+    font-size: 11px;
+    font-weight: bold;
+    color: #1a237e;
+    margin-top: 2px;
+}
+
+/* Botões Select e Start */
+.menu-buttons-container {
+    grid-column: 1 / span 2;
+    grid-row: 2;
+    display: flex;
+    justify-content: center;
+    gap: 28px;
+    margin-top: 10px;
+}
+
+.pill-btn-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    transform: rotate(-25deg);
+}
+
+.pill-btn {
+    width: 50px;
+    height: 12px;
+    background: var(--gb-btn-select);
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    box-shadow: 0 2px 0 #444;
+}
+
+.pill-btn:active {
+    box-shadow: 0 1px 0 #444;
+    transform: translateY(1px);
+}
+
+.pill-label {
+    font-size: 8px;
+    font-weight: bold;
+    color: #1a237e;
+    letter-spacing: 1px;
+}
+
+/* Aberturas de Alto-falante */
+.speaker-grill {
+    position: absolute;
+    right: 12px;
+    bottom: -6px;
+    display: flex;
+    gap: 6px;
+    transform: rotate(-25deg);
+}
+
+.speaker-slot {
+    width: 6px;
+    height: 38px;
+    background: var(--gb-body-shadow);
+    border-radius: 3px;
+    box-shadow: inset 1px 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+/* ==========================================================================
+   Ajustes Responsivos Mobile-First
+   ========================================================================== */
+@media (max-width: 400px) {
+    .gameboy-viewport {
+        padding: 0;
+    }
+
+    .gameboy-console {
+        max-width: 100%;
+        height: 100%;
+        border-radius: 0;
+        padding: 10px 12px 16px 12px;
+    }
+
+    .gameboy-screen-wrapper {
+        min-height: 220px;
+    }
+
+    .dpad-cross {
+        width: 86px;
+        height: 86px;
+    }
+
+    .dpad-up, .dpad-down {
+        left: 28px;
+        width: 30px;
+        height: 30px;
+    }
+
+    .dpad-left, .dpad-right {
+        top: 28px;
+        width: 30px;
+        height: 30px;
+    }
+
+    .dpad-center {
+        top: 28px;
+        left: 28px;
+        width: 30px;
+        height: 30px;
+    }
+
+    .round-btn {
+        width: 38px;
+        height: 38px;
+    }
+}

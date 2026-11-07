@@ -10,7 +10,7 @@ class TestWebApi(unittest.TestCase):
         self.client = self.app.test_client()
 
     def test_index_route(self):
-        res = self.client.get("/")
+        res = self.client.get("/", headers={"Accept": "application/json"})
         self.assertEqual(res.status_code, 200)
         data = res.get_json()
         self.assertEqual(data["status"], "ok")

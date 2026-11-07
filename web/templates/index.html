@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Dragon Ball Z - Game Boy Edition</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/gameboy.css') }}">
+</head>
+<body>
+    <main class="gameboy-viewport">
+        <!-- Carcaça do Portátil Game Boy -->
+        <div class="gameboy-console">
+            
+            <!-- Linhas decorativas superiores da carcaça -->
+            <div class="console-top-stripes">
+                <span class="stripe"></span>
+                <span class="stripe"></span>
+                <span class="stripe"></span>
+            </div>
+
+            <!-- METADE SUPERIOR: Visor e Display LCD -->
+            <section class="gameboy-screen-wrapper" aria-label="Visor do Console">
+                <header class="screen-bezel-header">
+                    <span class="bezel-line left"></span>
+                    <span class="bezel-title">DOT MATRIX WITH STEREO SOUND</span>
+                    <span class="bezel-line right"></span>
+                </header>
+
+                <div class="screen-inner-frame">
+                    <!-- Indicador de Bateria -->
+                    <div class="battery-indicator">
+                        <span class="battery-led active"></span>
+                        <span class="battery-label">BATTERY</span>
+                    </div>
+
+                    <!-- Display LCD Estilo Pixel Art -->
+                    <div class="screen-display" id="screenDisplay">
+                        <!-- Arena de Batalha (Inimigo topo direito / Jogador base esquerda) -->
+                        <div class="battle-arena" id="battleArena">
+                            <!-- Painel do Oponente -->
+                            <div class="hud-opponent" id="opponentHud">
+                                <div class="hud-name-box">
+                                    <span class="char-name" id="enemyName">VEGETA</span>
+                                    <span class="char-lvl">Lv.20</span>
+                                </div>
+                                <div class="stat-bar-group">
+                                    <div class="bar-container">
+                                        <span class="bar-label">HP</span>
+                                        <div class="bar-track">
+                                            <div class="bar-fill hp" id="enemyHpBar" style="width: 100%;"></div>
+                                        </div>
+                                    </div>
+                                    <div class="bar-container">
+                                        <span class="bar-label">KI</span>
+                                        <div class="bar-track">
+                                            <div class="bar-fill ki" id="enemyKiBar" style="width: 0%;"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Sprite / Placeholder do Oponente -->
+                            <div class="sprite-area opponent" id="enemySpriteArea">
+                                <div class="pixel-sprite-placeholder enemy-sprite">[OPONENTE]</div>
+                            </div>
+
+                            <!-- Sprite / Placeholder do Jogador -->
+                            <div class="sprite-area player" id="playerSpriteArea">
+                                <div class="pixel-sprite-placeholder player-sprite">[JOGADOR]</div>
+                            </div>
+
+                            <!-- Painel do Jogador -->
+                            <div class="hud-player" id="playerHud">
+                                <div class="hud-name-box">
+                                    <span class="char-name" id="playerName">GOKU</span>
+                                    <span class="char-lvl">Lv.20</span>
+                                </div>
+                                <div class="stat-bar-group">
+                                    <div class="bar-container">
+                                        <span class="bar-label">HP</span>
+                                        <div class="bar-track">
+                                            <div class="bar-fill hp" id="playerHpBar" style="width: 100%;"></div>
+                                        </div>
+                                    </div>
+                                    <div class="bar-values" id="playerHpValues">100 / 100</div>
+                                    <div class="bar-container">
+                                        <span class="bar-label">KI</span>
+                                        <div class="bar-track">
+                                            <div class="bar-fill ki" id="playerKiBar" style="width: 0%;"></div>
+                                        </div>
+                                    </div>
+                                    <div class="bar-values" id="playerKiValues">0 / 100</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Caixa de Diálogo e Ações Retrô -->
+                        <div class="dialogue-box" id="dialogueBox">
+                            <p class="dialogue-text" id="dialogueText">
+                                Um guerreiro hostil apareceu! O que Goku fará?
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Logo da Carcaça -->
+            <div class="console-branding">
+                <span class="brand-brand">Nintendo</span>
+                <span class="brand-model">GAME BOY<span class="trademark">TM</span></span>
+            </div>
+
+            <!-- METADE INFERIOR: Carcaça de Controles Físicos Virtuais -->
+            <section class="gameboy-controls-wrapper" aria-label="Controles do Portátil">
+                
+                <!-- D-Pad (Direcionais) -->
+                <div class="dpad-container" id="dpad">
+                    <div class="dpad-cross">
+                        <button type="button" class="dpad-btn dpad-up" id="btnUp" aria-label="Cima">▲</button>
+                        <button type="button" class="dpad-btn dpad-left" id="btnLeft" aria-label="Esquerda">◀</button>
+                        <div class="dpad-center"></div>
+                        <button type="button" class="dpad-btn dpad-right" id="btnRight" aria-label="Direita">▶</button>
+                        <button type="button" class="dpad-btn dpad-down" id="btnDown" aria-label="Baixo">▼</button>
+                    </div>
+                </div>
+
+                <!-- Botões de Ação (B e A diagonais) -->
+                <div class="action-buttons-container">
+                    <div class="action-btn-wrapper">
+                        <button type="button" class="round-btn btn-b" id="btnB" aria-label="Botão B (Voltar)">B</button>
+                        <span class="btn-label">B</span>
+                    </div>
+                    <div class="action-btn-wrapper">
+                        <button type="button" class="round-btn btn-a" id="btnA" aria-label="Botão A (Confirmar)">A</button>
+                        <span class="btn-label">A</span>
+                    </div>
+                </div>
+
+                <!-- Botões de Menu (Select e Start inclinados) -->
+                <div class="menu-buttons-container">
+                    <div class="pill-btn-wrapper">
+                        <button type="button" class="pill-btn" id="btnSelect" aria-label="Select"></button>
+                        <span class="pill-label">SELECT</span>
+                    </div>
+                    <div class="pill-btn-wrapper">
+                        <button type="button" class="pill-btn" id="btnStart" aria-label="Start"></button>
+                        <span class="pill-label">START</span>
+                    </div>
+                </div>
+
+                <!-- Aberturas de Alto-falante decorativas -->
+                <div class="speaker-grill" aria-hidden="true">
+                    <span class="speaker-slot"></span>
+                    <span class="speaker-slot"></span>
+                    <span class="speaker-slot"></span>
+                    <span class="speaker-slot"></span>
+                    <span class="speaker-slot"></span>
+                    <span class="speaker-slot"></span>
+                </div>
+            </section>
+
+        </div>
+    </main>
+</body>
+</html>

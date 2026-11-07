@@ -4,7 +4,7 @@ Expõe endpoints REST integrando o domínio puro (models/), o carregamento
 de dados (engine.data_loader) e o controle da IA (engine.ai_controller).
 """
 
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, render_template, request
 from engine.ai_controller import execute_ai_turn
 from engine.data_loader import (
     create_initial_inventory,
@@ -112,13 +112,18 @@ def create_app(test_config=None):
 
     @app.route("/", methods=["GET"])
     def index():
-        return jsonify(
-            {
-                "status": "ok",
-                "app": "Dragon Ball Z - Game Boy Web Interface",
-                "version": "2.0",
-            }
-        )
+        if (
+            request.headers.get("Accept") == "application/json"
+            or request.args.get("format") == "json"
+        ):
+            return jsonify(
+                {
+                    "status": "ok",
+                    "app": "Dragon Ball Z - Game Boy Web Interface",
+                    "version": "2.0",
+                }
+            )
+        return render_template("index.html")
 
     # --- Catálogos de Dados ---
 
