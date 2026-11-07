@@ -378,9 +378,11 @@ html, body {
     box-shadow: 0 3px 0 #111;
 }
 
-.dpad-btn:active {
+.dpad-btn:active,
+.dpad-btn.pressed {
     box-shadow: 0 1px 0 #111;
     transform: translateY(2px);
+    background: #111;
 }
 
 .dpad-up {
@@ -459,9 +461,11 @@ html, body {
         0 6px 6px rgba(0, 0, 0, 0.4);
 }
 
-.round-btn:active {
+.round-btn:active,
+.round-btn.pressed {
     box-shadow: 0 1px 0 #4a0d20;
     transform: translateY(3px);
+    filter: brightness(0.9);
 }
 
 .btn-label {
@@ -499,9 +503,29 @@ html, body {
     box-shadow: 0 2px 0 #444;
 }
 
-.pill-btn:active {
+.pill-btn:active,
+.pill-btn.pressed {
     box-shadow: 0 1px 0 #444;
     transform: translateY(1px);
+    background: #555;
+}
+
+/* Legenda de Atalhos de Teclado */
+.keyboard-legend {
+    font-size: 8px;
+    font-weight: bold;
+    color: #5a585f;
+    text-align: center;
+    margin-top: 10px;
+    letter-spacing: 0.5px;
+    line-height: 1.4;
+    opacity: 0.85;
+}
+
+@media (max-width: 440px) {
+    .keyboard-legend {
+        display: none;
+    }
 }
 
 .pill-label {

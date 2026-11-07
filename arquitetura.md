@@ -22,6 +22,7 @@
 | `web/app.py` | API Flask: rotas REST de batalha (1v1 e Tag Team via `Team`), catálogo, turnos de IA e save state |
 | `web/templates/index.html` | Template HTML5 da carcaça do Game Boy (visor superior e controles inferiores) |
 | `web/static/css/gameboy.css` | Folha de estilos retrô Game Boy mobile-first com paleta DMG e botões táteis |
+| `web/static/js/gamepad.js` | Controlador unificado de input virtual touch, teclado e feedback haptic |
 | `tests/test_character.py` | Atributos, transformações, itens |
 | `tests/test_team.py` | Rotação e KO |
 | `tests/test_campaign.py` | Progressão de campanha, drops e recuperação |
@@ -34,6 +35,7 @@
 | `tests/test_web_api.py` | Testes de integração da API Flask (endpoints REST, turnos, save/load) |
 | `tests/test_web_e2e.py` | Testes ponta a ponta (E2E) com servidor Flask ativo e requisições HTTP reais |
 | `tests/test_web_layout.py` | Testes de renderização do layout HTML5 e assets estáticos da carcaça Game Boy |
+| `tests/test_web_controller.py` | Testes do módulo de controle virtual (touch, teclado e data-attributes) |
 | `run_tests.py` | Roda `tests/`; console = resumo + falhas + cobertura; logs detalhados em `logs/` |
 | `.github/workflows/tests.yml` | Pipeline de CI/CD: execução automatizada de testes no GitHub Actions |
 | `ROADMAP.md` | Roadmap ativo (Versão 2.0 Web Game Boy) |

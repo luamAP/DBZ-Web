@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Dragon Ball Z - Game Boy Edition</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/gameboy.css') }}">
+    <script src="{{ url_for('static', filename='js/gamepad.js') }}" defer></script>
 </head>
 <body>
     <main class="gameboy-viewport">
@@ -116,22 +117,22 @@
                 <!-- D-Pad (Direcionais) -->
                 <div class="dpad-container" id="dpad">
                     <div class="dpad-cross">
-                        <button type="button" class="dpad-btn dpad-up" id="btnUp" aria-label="Cima">▲</button>
-                        <button type="button" class="dpad-btn dpad-left" id="btnLeft" aria-label="Esquerda">◀</button>
+                        <button type="button" class="dpad-btn dpad-up" id="btnUp" data-btn="UP" aria-label="Cima">▲</button>
+                        <button type="button" class="dpad-btn dpad-left" id="btnLeft" data-btn="LEFT" aria-label="Esquerda">◀</button>
                         <div class="dpad-center"></div>
-                        <button type="button" class="dpad-btn dpad-right" id="btnRight" aria-label="Direita">▶</button>
-                        <button type="button" class="dpad-btn dpad-down" id="btnDown" aria-label="Baixo">▼</button>
+                        <button type="button" class="dpad-btn dpad-right" id="btnRight" data-btn="RIGHT" aria-label="Direita">▶</button>
+                        <button type="button" class="dpad-btn dpad-down" id="btnDown" data-btn="DOWN" aria-label="Baixo">▼</button>
                     </div>
                 </div>
 
                 <!-- Botões de Ação (B e A diagonais) -->
                 <div class="action-buttons-container">
                     <div class="action-btn-wrapper">
-                        <button type="button" class="round-btn btn-b" id="btnB" aria-label="Botão B (Voltar)">B</button>
+                        <button type="button" class="round-btn btn-b" id="btnB" data-btn="B" aria-label="Botão B (Voltar)">B</button>
                         <span class="btn-label">B</span>
                     </div>
                     <div class="action-btn-wrapper">
-                        <button type="button" class="round-btn btn-a" id="btnA" aria-label="Botão A (Confirmar)">A</button>
+                        <button type="button" class="round-btn btn-a" id="btnA" data-btn="A" aria-label="Botão A (Confirmar)">A</button>
                         <span class="btn-label">A</span>
                     </div>
                 </div>
@@ -139,11 +140,11 @@
                 <!-- Botões de Menu (Select e Start inclinados) -->
                 <div class="menu-buttons-container">
                     <div class="pill-btn-wrapper">
-                        <button type="button" class="pill-btn" id="btnSelect" aria-label="Select"></button>
+                        <button type="button" class="pill-btn" id="btnSelect" data-btn="SELECT" aria-label="Select"></button>
                         <span class="pill-label">SELECT</span>
                     </div>
                     <div class="pill-btn-wrapper">
-                        <button type="button" class="pill-btn" id="btnStart" aria-label="Start"></button>
+                        <button type="button" class="pill-btn" id="btnStart" data-btn="START" aria-label="Start"></button>
                         <span class="pill-label">START</span>
                     </div>
                 </div>
@@ -158,6 +159,15 @@
                     <span class="speaker-slot"></span>
                 </div>
             </section>
+
+            <!-- Ajuda de atalhos de teclado (Desktop) -->
+            <footer class="keyboard-legend">
+                <span>[WASD / ▲▼◄►]: D-Pad</span> &bull;
+                <span>[Z / Enter]: A</span> &bull;
+                <span>[X / Esc]: B</span> &bull;
+                <span>[Shift]: Select</span> &bull;
+                <span>[Espaço]: Start</span>
+            </footer>
 
         </div>
     </main>

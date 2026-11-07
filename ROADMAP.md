@@ -17,7 +17,7 @@ Mantém o `unittest` como runner; `hypothesis` e `coverage` se integram a ele.
 
 - [x] **API Flask (`web/app.py`):** integrada ao domínio puro (`models/`, `data_loader.py` e `ai_controller.py`).
 - [x] **Layout HTML5/CSS3 responsivo:** estilo portátil (visor Pixel Art na metade superior e controles na metade inferior).
-- [ ] Controle virtual touch/teclado com **D-Pad (▲ ▼ ◄ ►)**, botões **A** (Confirmar) e **B** (Voltar), além de **Start/Select**.
+- [x] **Controle virtual touch/teclado:** com **D-Pad (▲ ▼ ◄ ►)**, botões **A** (Confirmar) e **B** (Voltar), além de **Start/Select**.
 
 ## Fase 2: Interface de Combate Estilo Pokémon (Menu 2x2)
 
