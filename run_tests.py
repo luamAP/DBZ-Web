@@ -42,7 +42,7 @@ def run_suite():
     try:
         import coverage
         cov = coverage.Coverage(
-            source=["models", "engine"],
+            source=["models", "engine", "web"],
             branch=True,
             data_file=None,
         )

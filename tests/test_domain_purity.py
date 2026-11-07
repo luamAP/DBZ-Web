@@ -6,10 +6,29 @@ import unittest
 class ForbiddenCallVisitor(ast.NodeVisitor):
     FORBIDDEN_NAMES = {'print', 'input', 'sleep'}
     FORBIDDEN_ATTRIBUTES = {('time', 'sleep')}
+    FORBIDDEN_MODULES = {'engine', 'flask'}
 
     def __init__(self, filepath):
         self.filepath = filepath
         self.violations = []
+
+    def visit_Import(self, node):
+        for alias in node.names:
+            mod_root = alias.name.split('.')[0]
+            if mod_root in self.FORBIDDEN_MODULES:
+                self.violations.append(
+                    f"{self.filepath}:{node.lineno} - Import proibido: '{alias.name}'"
+                )
+        self.generic_visit(node)
+
+    def visit_ImportFrom(self, node):
+        if node.module:
+            mod_root = node.module.split('.')[0]
+            if mod_root in self.FORBIDDEN_MODULES:
+                self.violations.append(
+                    f"{self.filepath}:{node.lineno} - Import from proibido: '{node.module}'"
+                )
+        self.generic_visit(node)
 
     def visit_Call(self, node):
         # Chamada direta: print(...), input(...), sleep(...)

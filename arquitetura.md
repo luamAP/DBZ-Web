@@ -18,6 +18,8 @@
 | `models/character.py` | Stats, `_recalculate_stats`, equip/unequip, consumíveis, recuperação, transformação, serialização (`to_dict`/`load_state`), `execute_move`, `apply_incoming_damage` |
 | `models/team.py` | Tag Team: ativo, `get_bench_members`, `switch_member`, `auto_switch_next_alive` |
 | `models/campaign.py` | Entidade de campanha: fases, resolução de drops, recuperação e serialização |
+| `web/__init__.py` | Pacote da camada Web (Flask) |
+| `web/app.py` | API Flask: rotas REST de batalha (1v1 e Tag Team via `Team`), catálogo, turnos de IA e save state |
 | `tests/test_character.py` | Atributos, transformações, itens |
 | `tests/test_team.py` | Rotação e KO |
 | `tests/test_campaign.py` | Progressão de campanha, drops e recuperação |
@@ -27,9 +29,11 @@
 | `tests/test_domain_purity.py` | AST: pureza de `models/` |
 | `tests/test_data_integrity.py` | Integridade e validação de esquemas e referências cruzadas dos YAMLs |
 | `tests/test_properties.py` | Testes baseados em propriedades (Hypothesis): invariantes de domínio |
+| `tests/test_web_api.py` | Testes de integração da API Flask (endpoints REST, turnos, save/load) |
+| `tests/test_web_e2e.py` | Testes ponta a ponta (E2E) com servidor Flask ativo e requisições HTTP reais |
 | `run_tests.py` | Roda `tests/`; console = resumo + falhas + cobertura; logs detalhados em `logs/` |
 | `.github/workflows/tests.yml` | Pipeline de CI/CD: execução automatizada de testes no GitHub Actions |
 | `ROADMAP.md` | Roadmap ativo (Versão 2.0 Web Game Boy) |
 | `.agents/rules/` | Regras do agente |
 
-**Dependências:** `data/*.yml` → `engine.data_loader` → `main` / `tests` → `engine.battle_engine` → `models`, `engine.ai_controller`.
+**Dependências:** `data/*.yml` → `engine.data_loader` → `main` / `web.app` / `tests` → `engine.battle_engine` / `web.app` → `models`, `engine.ai_controller`.

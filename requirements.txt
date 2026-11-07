@@ -2,3 +2,4 @@
 PyYAML>=6.0
 hypothesis>=6.0.0
 coverage>=7.0.0
+Flask>=3.0.0
