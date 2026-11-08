@@ -188,6 +188,8 @@
         }
 
         updateDialogueFeedback(btnName, state) {
+            // Se o menu de combate 2x2 estiver presente, a navegação é gerenciada pelo menu
+            if (document.getElementById('battleMenuGrid')) return;
             if (!this.dialogueEl) return;
             const labels = {
                 UP: '▲ CIMA',

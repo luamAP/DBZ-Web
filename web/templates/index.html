@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/gameboy.css') }}">
     <script src="{{ url_for('static', filename='js/gamepad.js') }}" defer></script>
     <script src="{{ url_for('static', filename='js/battle.js') }}" defer></script>
+    <script src="{{ url_for('static', filename='js/menu.js') }}" defer></script>
 </head>
 <body>
     <main class="gameboy-viewport">
@@ -93,11 +94,33 @@
                             </div>
                         </div>
 
-                        <!-- Caixa de Diálogo e Ações Retrô -->
+                        <!-- Caixa de Diálogo e Ações Retrô Estilo Pokémon -->
                         <div class="dialogue-box" id="dialogueBox">
-                            <p class="dialogue-text" id="dialogueText">
-                                Um guerreiro hostil apareceu! O que Goku fará?
-                            </p>
+                            <div class="dialogue-content" id="dialogueContent">
+                                <p class="dialogue-text" id="dialogueText">
+                                    O que Goku fará?
+                                </p>
+                            </div>
+
+                            <!-- Grade de Ações 2x2 -->
+                            <div class="battle-menu-grid" id="battleMenuGrid" role="menu" aria-label="Menu de Ações">
+                                <button type="button" class="menu-action-btn selected" id="btnActionFight" data-action="fight" data-row="0" data-col="0" role="menuitem">
+                                    <span class="menu-cursor" aria-hidden="true">▶</span>
+                                    <span class="action-label">LUTAR</span>
+                                </button>
+                                <button type="button" class="menu-action-btn" id="btnActionDefend" data-action="defend" data-row="0" data-col="1" role="menuitem">
+                                    <span class="menu-cursor" aria-hidden="true">&nbsp;</span>
+                                    <span class="action-label">DEFENDER</span>
+                                </button>
+                                <button type="button" class="menu-action-btn" id="btnActionKiForm" data-action="ki_form" data-row="1" data-col="0" role="menuitem">
+                                    <span class="menu-cursor" aria-hidden="true">&nbsp;</span>
+                                    <span class="action-label">KI / FORMA</span>
+                                </button>
+                                <button type="button" class="menu-action-btn" id="btnActionItemsTeam" data-action="items_team" data-row="1" data-col="1" role="menuitem">
+                                    <span class="menu-cursor" aria-hidden="true">&nbsp;</span>
+                                    <span class="action-label">ITENS / EQUIPE</span>
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
