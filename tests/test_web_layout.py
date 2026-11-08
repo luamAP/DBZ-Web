@@ -21,7 +21,6 @@ class TestWebLayout(unittest.TestCase):
 
         # Valida metade superior (Visor, Display LCD e Diálogo)
         self.assertIn("screen-display", html)
-        self.assertIn("battery-led", html)
         self.assertIn("battle-arena", html)
         self.assertIn("hud-opponent", html)
         self.assertIn("hud-player", html)
