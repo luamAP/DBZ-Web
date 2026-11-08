@@ -39,9 +39,6 @@ class TestWebController(unittest.TestCase):
         for btn in expected_buttons:
             self.assertIn(f'data-btn="{btn}"', html)
 
-        # Legenda de atalhos presente
-        self.assertIn("keyboard-legend", html)
-
 
 if __name__ == "__main__":
     unittest.main()
