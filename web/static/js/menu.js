@@ -42,6 +42,8 @@
                 player: null,
                 team: null,
                 inventory: null,
+                defenseMechanics: null,
+                consumables: null,
             };
 
             this.init();
@@ -62,6 +64,18 @@
             this.submenuListEl = document.getElementById('submenuList');
             this.submenuBackBtn = document.getElementById('submenuBackBtn');
             this.dialogueTextEl = document.getElementById('dialogueText');
+
+            const initialEl = document.getElementById('initialBattleData');
+            if (initialEl && initialEl.textContent.trim()) {
+                try {
+                    const data = JSON.parse(initialEl.textContent);
+                    if (data && (data.player || data.battle)) {
+                        this.setCombatantData(data.battle || data);
+                    }
+                } catch (e) {
+                    console.error('Erro ao ler initialBattleData no menu:', e);
+                }
+            }
 
             this.cacheButtons();
             this.bindSubmenuEvents();
@@ -254,6 +268,7 @@
         getSubmenuItems(category) {
             const p = this.combatantData.player;
             const t = this.combatantData.team;
+            const defCfg = this.combatantData.defenseMechanics;
             const items = [];
 
             switch (category) {
@@ -271,67 +286,83 @@
                             });
                         });
                     } else {
-                        items.push(
-                            { id: 'punch', label: 'SOCO / GOLPE', info: '0 KI', type: 'move' },
-                            { id: 'kamehameha', label: 'KAMEHAMEHA', info: '20 KI', type: 'move' },
-                            { id: 'kaioken_rush', label: 'COMBO METEORO', info: '15 KI', type: 'move' },
-                            { id: 'ki_blast', label: 'ESFERAS DE KI', info: '10 KI', type: 'move' }
-                        );
+                        items.push({
+                            id: 'none',
+                            label: '(SEM TÉCNICAS)',
+                            info: '0 KI',
+                            type: 'none',
+                            disabled: true,
+                        });
                     }
                     break;
 
                 case 'defend':
-                    items.push(
-                        { id: 'block', label: 'BLOQUEIO FIRME', info: 'MITIGA DANO', type: 'defense' },
-                        { id: 'dodge', label: 'ESQUIVA RÁPIDA', info: 'CHANCE DESVIO', type: 'defense' },
-                        { id: 'counter', label: 'CONTRA-ATAQUE', info: 'DEVOLVE DANO', type: 'defense' }
-                    );
+                    const defenseLabels = {
+                        block: 'BLOQUEIO SIMPLES',
+                        counter: 'CONTRA-ATAQUE',
+                        dodge: 'ESQUIVA',
+                        vanish: 'TELEPORTE PERFEITO',
+                    };
+                    const activeDefCfg = defCfg && Object.keys(defCfg).length > 0 ? defCfg : {
+                        block: { ki_cost: 0 },
+                        counter: { ki_cost: 10 },
+                        dodge: { ki_cost: 5 },
+                        vanish: { ki_cost: 25 },
+                    };
+                    for (const [key, cfg] of Object.entries(activeDefCfg)) {
+                        const cost = cfg && cfg.ki_cost !== undefined ? cfg.ki_cost : 0;
+                        const label = defenseLabels[key] || key.replace(/_/g, ' ').toUpperCase();
+                        items.push({
+                            id: key,
+                            label: label,
+                            info: `${cost} KI`,
+                            type: 'defense',
+                            raw: cfg,
+                        });
+                    }
                     break;
 
                 case 'ki_form':
-                    items.push(
-                        { id: 'charge_ki', label: 'CONCENTRAR KI', info: '+25 KI', type: 'ki' }
-                    );
+                    items.push({
+                        id: 'charge_ki',
+                        label: 'CARREGAR KI',
+                        info: '+KI',
+                        type: 'ki',
+                    });
                     if (p && Array.isArray(p.transformations) && p.transformations.length > 0) {
                         p.transformations.forEach((tr) => {
                             const name = typeof tr === 'string' ? tr : (tr.name || tr.id || 'Forma');
-                            const cost = tr.ki_cost !== undefined ? tr.ki_cost : (tr.cost || 30);
+                            const cost = tr.required_ki !== undefined ? tr.required_ki : (tr.ki_cost !== undefined ? tr.ki_cost : 0);
+                            const isCurrent = (p.current_transformation === name);
                             items.push({
                                 id: name.toLowerCase().replace(/\s+/g, '_'),
                                 label: name.toUpperCase(),
-                                info: `${cost} KI`,
+                                info: isCurrent ? 'ATIVA' : `${cost} KI`,
                                 type: 'transformation',
                                 raw: tr,
                             });
                         });
-                    } else {
-                        items.push(
-                            { id: 'kaioken', label: 'KAIOKEN', info: '15 KI', type: 'transformation' },
-                            { id: 'super_saiyajin', label: 'SUPER SAIYAJIN', info: '50 KI', type: 'transformation' }
-                        );
                     }
                     break;
 
                 case 'items_team':
-                    // Itens do inventário
                     const inv = this.combatantData.inventory || (p && p.inventory);
+                    const consumablesMeta = this.combatantData.consumables || {};
+
                     if (inv && Object.keys(inv).length > 0) {
                         for (const [itemId, qty] of Object.entries(inv)) {
                             if (qty > 0) {
+                                const meta = consumablesMeta[itemId] || {};
+                                const name = meta.name || itemId.replace(/_/g, ' ');
                                 items.push({
                                     id: itemId,
-                                    label: itemId.replace(/_/g, ' ').toUpperCase(),
+                                    label: name.toUpperCase(),
                                     info: `QTD: ${qty}`,
                                     type: 'item',
+                                    raw: meta,
                                 });
                             }
                         }
-                    }
-                    if (items.length === 0) {
-                        items.push(
-                            { id: 'senzu_bean', label: 'SEMENTE DOS DEUSES', info: '100% HP', type: 'item' },
-                            { id: 'capsule_ki', label: 'CÁPSULA DE KI', info: '+50 KI', type: 'item' }
-                        );
                     }
 
                     // Troca de Combatente (Tag Team)
@@ -347,12 +378,15 @@
                                 });
                             }
                         });
-                    } else {
+                    }
+
+                    if (items.length === 0) {
                         items.push({
-                            id: 'switch_member',
-                            label: 'TROCAR GUERREIRO',
-                            info: 'TAG TEAM',
-                            type: 'switch_member',
+                            id: 'none',
+                            label: '(NENHUM ITEM)',
+                            info: '0',
+                            type: 'none',
+                            disabled: true,
                         });
                     }
                     break;
@@ -483,7 +517,9 @@
         selectSubmenuItem() {
             if (!this.submenuItems || this.submenuItems.length === 0) return;
             const selectedItem = this.submenuItems[this.submenuIndex];
+            if (selectedItem.disabled) return;
 
+            const pName = (this.combatantData.player && this.combatantData.player.name) || 'Goku';
             const eventData = {
                 category: this.activeCategory,
                 item: selectedItem,
@@ -493,7 +529,8 @@
             this.emitEvent('battle:submenu-select', eventData);
             this.emitEvent('battle:action-execute', eventData);
 
-            this.setMessage(`Goku escolheu ${selectedItem.label}!`);
+            this.closeSubmenu();
+            this.setMessage(`${pName} escolheu ${selectedItem.label}!`);
             return eventData;
         }
 
@@ -521,10 +558,20 @@
         /**
          * Atualiza os dados de combatente para sincronizar as opções de submenus
          */
-        setCombatantData(playerData, teamData, inventoryData) {
-            if (playerData) this.combatantData.player = playerData;
-            if (teamData) this.combatantData.team = teamData;
-            if (inventoryData) this.combatantData.inventory = inventoryData;
+        setCombatantData(playerOrState, teamData, inventoryData, defenseData, consumablesData) {
+            if (playerOrState && playerOrState.player) {
+                this.combatantData.player = playerOrState.player;
+                this.combatantData.team = playerOrState.player_team || playerOrState.team;
+                this.combatantData.inventory = playerOrState.player.inventory || playerOrState.inventory;
+                this.combatantData.defenseMechanics = playerOrState.defense_mechanics || {};
+                this.combatantData.consumables = playerOrState.consumables || {};
+            } else {
+                if (playerOrState) this.combatantData.player = playerOrState;
+                if (teamData) this.combatantData.team = teamData;
+                if (inventoryData) this.combatantData.inventory = inventoryData;
+                if (defenseData) this.combatantData.defenseMechanics = defenseData;
+                if (consumablesData) this.combatantData.consumables = consumablesData;
+            }
 
             if (this.currentScreen === 'submenu' && this.activeCategory) {
                 this.submenuItems = this.getSubmenuItems(this.activeCategory);

@@ -27,6 +27,23 @@
         setup() {
             this.cacheElements();
             this.bindEvents();
+            this.initData();
+        }
+
+        initData() {
+            const initialEl = document.getElementById('initialBattleData');
+            if (initialEl && initialEl.textContent.trim()) {
+                try {
+                    const data = JSON.parse(initialEl.textContent);
+                    if (data && (data.player || data.battle)) {
+                        this.updateFromState(data.battle || data);
+                        return;
+                    }
+                } catch (e) {
+                    console.error('Erro ao ler initialBattleData:', e);
+                }
+            }
+            this.fetchBattleState();
         }
 
         cacheElements() {
@@ -68,6 +85,12 @@
             document.addEventListener('battle-damage', (e) => {
                 if (e.detail && e.detail.target) {
                     this.animateDamage(e.detail.target);
+                }
+            });
+
+            document.addEventListener('battle:action-execute', (e) => {
+                if (e.detail) {
+                    this.handleActionExecute(e.detail);
                 }
             });
         }
@@ -204,35 +227,94 @@
          */
         updateFromState(state) {
             if (!state) return;
+            const battle = state.battle || state;
+            const player = battle.player;
+            const enemy = battle.enemy || battle.opponent;
 
-            if (state.player) {
-                this.updateCombatant('player', state.player);
+            if (player) {
+                this.updateCombatant('player', player);
                 if (window.battleMenu && typeof window.battleMenu.setCombatantData === 'function') {
-                    window.battleMenu.setCombatantData(state.player, state.team, state.inventory);
+                    window.battleMenu.setCombatantData(
+                        player,
+                        battle.player_team || battle.team,
+                        player.inventory,
+                        battle.defense_mechanics,
+                        battle.consumables
+                    );
                 }
             }
 
-            const enemy = state.enemy || state.opponent;
             if (enemy) {
                 this.updateCombatant('enemy', enemy);
             }
 
-            if (state.message && this.elements.dialogueText) {
-                this.elements.dialogueText.textContent = state.message;
+            const message = battle.message || (battle.log && battle.log.length > 0 ? battle.log[battle.log.length - 1] : null);
+            if (message && this.elements.dialogueText) {
+                this.elements.dialogueText.textContent = message;
+            }
+        }
+
+        /**
+         * Executa uma ação de combate enviando a requisição para a API Flask
+         */
+        async handleActionExecute(detail) {
+            if (!detail || !detail.item) return;
+            const category = detail.category;
+            const item = detail.item;
+            let payload = { session_id: 'default' };
+
+            if (category === 'fight') {
+                payload.action = 'move';
+                payload.move_name = item.raw ? item.raw.name : item.label;
+            } else if (category === 'defend') {
+                payload.action = 'defend';
+                payload.stance = item.id;
+            } else if (category === 'ki_form') {
+                if (item.type === 'ki') {
+                    payload.action = 'charge_ki';
+                } else if (item.type === 'transformation') {
+                    payload.action = 'transform';
+                    payload.transformation_name = item.raw ? item.raw.name : item.label;
+                }
+            } else if (category === 'items_team') {
+                if (item.type === 'item') {
+                    payload.action = 'item';
+                    payload.item_id = item.id;
+                } else if (item.type === 'switch_member') {
+                    payload.action = 'switch';
+                    payload.target_index = item.targetIndex;
+                }
+            }
+
+            try {
+                const response = await fetch('/api/battle/action', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload),
+                });
+                const data = await response.json();
+                if (response.ok && data.success && data.battle) {
+                    this.updateFromState(data.battle);
+                } else if (data.error && this.elements.dialogueText) {
+                    this.elements.dialogueText.textContent = data.error;
+                }
+            } catch (err) {
+                console.error('Erro ao executar ação na API:', err);
             }
         }
 
         /**
          * Busca o estado ativo da API Flask e sincroniza a arena
          */
-        async fetchBattleState() {
+        async fetchBattleState(sessionId = 'default') {
             try {
-                const response = await fetch('/api/battle/state');
+                const response = await fetch(`/api/battle/state?session_id=${encodeURIComponent(sessionId)}`);
                 if (!response.ok) return null;
                 const data = await response.json();
-                if (data.status === 'ok') {
-                    this.updateFromState(data);
-                    return data;
+                const battleData = data.battle || (data.status === 'ok' ? data : null);
+                if (battleData) {
+                    this.updateFromState(battleData);
+                    return battleData;
                 }
             } catch (err) {
                 console.error('Erro ao sincronizar arena de batalha:', err);

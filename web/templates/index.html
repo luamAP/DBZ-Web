@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Dragon Ball Z - Game Boy Edition</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/gameboy.css') }}">
+    <script id="initialBattleData" type="application/json">{{ initial_battle | tojson | safe if initial_battle else '{}' }}</script>
     <script src="{{ url_for('static', filename='js/gamepad.js') }}" defer></script>
     <script src="{{ url_for('static', filename='js/battle.js') }}" defer></script>
     <script src="{{ url_for('static', filename='js/menu.js') }}" defer></script>

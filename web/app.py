@@ -84,6 +84,8 @@ def serialize_battle(battle):
     """Serializa o estado completo da batalha para o cliente."""
     player_team = battle["player_team"]
     enemy_team = battle["enemy_team"]
+    chars_data = load_characters_data()
+    items_data = load_items_data()
     return {
         "session_id": battle["session_id"],
         "turn": battle["turn"],
@@ -93,7 +95,38 @@ def serialize_battle(battle):
         "player_team": serialize_team(player_team),
         "enemy_team": serialize_team(enemy_team),
         "log": battle.get("log", []),
+        "defense_mechanics": chars_data.get("defense_mechanics", {}),
+        "consumables": items_data.get("consumables", {}),
     }
+
+
+def get_or_create_default_battle(battles):
+    """Retorna ou inicializa a batalha padrão (Goku vs Vegeta) alinhada ao main.py."""
+    if "default" not in battles:
+        chars_data = load_characters_data()
+        catalog = get_characters_catalog(chars_data)
+        items_data = load_items_data()
+        consumables_cfg = items_data.get("consumables", {})
+        combat_cfg = chars_data.get("combat_mechanics", {})
+
+        player = Character(
+            find_character_data(catalog, "Goku"),
+            initial_inventory=create_initial_inventory(consumables_cfg),
+            combat_cfg=combat_cfg,
+        )
+        enemy = Character(find_character_data(catalog, "Vegeta"), combat_cfg=combat_cfg)
+        player_team = Team("Guerreiros Z", [player])
+        enemy_team = Team("Exercito de Freeza", [enemy])
+
+        battles["default"] = {
+            "session_id": "default",
+            "player_team": player_team,
+            "enemy_team": enemy_team,
+            "turn": 1,
+            "status": "ongoing",
+            "log": [f"Batalha iniciada: {player.name} vs {enemy.name}!"],
+        }
+    return battles["default"]
 
 
 def create_app(test_config=None):
@@ -123,7 +156,8 @@ def create_app(test_config=None):
                     "version": "2.0",
                 }
             )
-        return render_template("index.html")
+        default_battle = get_or_create_default_battle(battles)
+        return render_template("index.html", initial_battle=serialize_battle(default_battle))
 
     # --- Catálogos de Dados ---
 
@@ -223,7 +257,11 @@ def create_app(test_config=None):
     @app.route("/api/battle/state", methods=["GET"])
     def get_battle_state():
         session_id = request.args.get("session_id", "default")
-        battle = battles.get(session_id)
+        if session_id == "default":
+            battle = get_or_create_default_battle(battles)
+        else:
+            battle = battles.get(session_id)
+
         if not battle:
             return (
                 jsonify(
