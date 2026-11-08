@@ -37,6 +37,8 @@
 | `tests/test_web_layout.py` | Testes de renderização do layout HTML5 e assets estáticos da carcaça Game Boy |
 | `tests/test_web_controller.py` | Testes do módulo de controle virtual (touch, teclado e data-attributes) |
 | `run_tests.py` | Roda `tests/`; console = resumo + falhas + cobertura; logs detalhados em `logs/` |
+| `pyproject.toml` | Metadados do projeto e declaração de dependências gerenciadas via `uv` |
+| `uv.lock` | Lockfile multiplataforma de dependências do `uv` |
 | `.github/workflows/tests.yml` | Pipeline de CI/CD: execução automatizada de testes no GitHub Actions |
 | `ROADMAP.md` | Roadmap ativo (Versão 2.0 Web Game Boy) |
 | `.agents/rules/` | Regras do agente |

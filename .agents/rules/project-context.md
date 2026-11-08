@@ -15,5 +15,5 @@ Toda tarefa que altere código segue a skill `plan-implement`.
 
 - roadmap: `ROADMAP.md` · id: `fase<N>`
 - mapa: `arquitetura.md`
-- testes: `.venv/bin/python run_tests.py <id>`
+- testes: `uv run python run_tests.py <id>`
 - relatorios: `docs/plans/`
