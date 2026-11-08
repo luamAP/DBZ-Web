@@ -6,6 +6,7 @@
     <title>Dragon Ball Z - Game Boy Edition</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/gameboy.css') }}">
     <script src="{{ url_for('static', filename='js/gamepad.js') }}" defer></script>
+    <script src="{{ url_for('static', filename='js/battle.js') }}" defer></script>
 </head>
 <body>
     <main class="gameboy-viewport">
@@ -41,16 +42,20 @@
                             <!-- Painel do Oponente -->
                             <div class="hud-opponent" id="opponentHud">
                                 <div class="hud-name-box">
-                                    <span class="char-name" id="enemyName">VEGETA</span>
-                                    <span class="char-lvl">Lv.20</span>
+                                    <div class="name-badge-group">
+                                        <span class="char-name" id="enemyName">VEGETA</span>
+                                        <span class="char-form" id="enemyForm"></span>
+                                    </div>
+                                    <span class="char-stance" id="enemyStance"></span>
                                 </div>
                                 <div class="stat-bar-group">
                                     <div class="bar-container">
                                         <span class="bar-label">HP</span>
                                         <div class="bar-track">
-                                            <div class="bar-fill hp" id="enemyHpBar" style="width: 100%;"></div>
+                                            <div class="bar-fill hp hp-high" id="enemyHpBar" style="width: 100%;"></div>
                                         </div>
                                     </div>
+                                    <div class="bar-values" id="enemyHpValues">100%</div>
                                     <div class="bar-container">
                                         <span class="bar-label">KI</span>
                                         <div class="bar-track">
@@ -60,27 +65,32 @@
                                 </div>
                             </div>
 
-                            <!-- Sprite / Placeholder do Oponente -->
+                            <!-- Sprite e Plataforma do Oponente -->
                             <div class="sprite-area opponent" id="enemySpriteArea">
-                                <div class="pixel-sprite-placeholder enemy-sprite">[OPONENTE]</div>
+                                <div class="pixel-sprite-placeholder enemy-sprite" id="enemySprite">[OPONENTE]</div>
+                                <div class="battle-ground opponent-ground" aria-hidden="true"></div>
                             </div>
 
-                            <!-- Sprite / Placeholder do Jogador -->
+                            <!-- Sprite e Plataforma do Jogador -->
                             <div class="sprite-area player" id="playerSpriteArea">
-                                <div class="pixel-sprite-placeholder player-sprite">[JOGADOR]</div>
+                                <div class="battle-ground player-ground" aria-hidden="true"></div>
+                                <div class="pixel-sprite-placeholder player-sprite" id="playerSprite">[JOGADOR]</div>
                             </div>
 
                             <!-- Painel do Jogador -->
                             <div class="hud-player" id="playerHud">
                                 <div class="hud-name-box">
-                                    <span class="char-name" id="playerName">GOKU</span>
-                                    <span class="char-lvl">Lv.20</span>
+                                    <div class="name-badge-group">
+                                        <span class="char-name" id="playerName">GOKU</span>
+                                        <span class="char-form" id="playerForm"></span>
+                                    </div>
+                                    <span class="char-stance" id="playerStance"></span>
                                 </div>
                                 <div class="stat-bar-group">
                                     <div class="bar-container">
                                         <span class="bar-label">HP</span>
                                         <div class="bar-track">
-                                            <div class="bar-fill hp" id="playerHpBar" style="width: 100%;"></div>
+                                            <div class="bar-fill hp hp-high" id="playerHpBar" style="width: 100%;"></div>
                                         </div>
                                     </div>
                                     <div class="bar-values" id="playerHpValues">100 / 100</div>

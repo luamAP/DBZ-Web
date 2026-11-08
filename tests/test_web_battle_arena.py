@@ -1,0 +1,92 @@
+import unittest
+from web.app import create_app
+
+
+class TestWebBattleArena(unittest.TestCase):
+
+    def setUp(self):
+        self.app = create_app({"TESTING": True})
+        self.client = self.app.test_client()
+
+    def test_arena_elements_rendered_in_html(self):
+        res = self.client.get("/")
+        self.assertEqual(res.status_code, 200)
+        html = res.get_data(as_text=True)
+
+        # Arena e containers principais
+        self.assertIn('class="battle-arena"', html)
+        self.assertIn('id="opponentHud"', html)
+        self.assertIn('id="playerHud"', html)
+
+        # Plataformas retrô de combate (chão estilo Pokémon)
+        self.assertIn("battle-ground opponent-ground", html)
+        self.assertIn("battle-ground player-ground", html)
+
+        # Sprites e placeholders
+        self.assertIn('id="enemySpriteArea"', html)
+        self.assertIn('id="enemySprite"', html)
+        self.assertIn('id="playerSpriteArea"', html)
+        self.assertIn('id="playerSprite"', html)
+
+        # Barras de HP e Ki com classes de status
+        self.assertIn('id="enemyHpBar"', html)
+        self.assertIn('id="enemyKiBar"', html)
+        self.assertIn('id="playerHpBar"', html)
+        self.assertIn('id="playerKiBar"', html)
+        self.assertIn("hp-high", html)
+
+        # Valores numéricos e badges
+        self.assertIn('id="enemyHpValues"', html)
+        self.assertIn('id="playerHpValues"', html)
+        self.assertIn('id="playerKiValues"', html)
+        self.assertIn('id="enemyForm"', html)
+        self.assertIn('id="playerForm"', html)
+        self.assertIn('id="enemyStance"', html)
+        self.assertIn('id="playerStance"', html)
+
+        # Scripts carregados
+        self.assertIn("static/js/battle.js", html)
+        self.assertIn("static/js/gamepad.js", html)
+
+    def test_battle_js_is_served(self):
+        res = self.client.get("/static/js/battle.js")
+        self.assertEqual(res.status_code, 200)
+        self.assertTrue(
+            res.content_type.startswith("application/javascript")
+            or res.content_type.startswith("text/javascript")
+        )
+        js = res.get_data(as_text=True)
+        self.assertIn("class BattleUI", js)
+        self.assertIn("calculatePercentage", js)
+        self.assertIn("getHpStatusClass", js)
+        self.assertIn("updateCombatant", js)
+        self.assertIn("animateDamage", js)
+        self.assertIn("updateFromState", js)
+        self.assertIn("window.BattleUI = BattleUI", js)
+
+    def test_gameboy_css_has_arena_and_animation_rules(self):
+        res = self.client.get("/static/css/gameboy.css")
+        self.assertEqual(res.status_code, 200)
+        css = res.get_data(as_text=True)
+
+        # Plataformas
+        self.assertIn(".battle-ground", css)
+        self.assertIn(".opponent-ground", css)
+        self.assertIn(".player-ground", css)
+
+        # Estados de HP e Ki
+        self.assertIn(".hp-high", css)
+        self.assertIn(".hp-mid", css)
+        self.assertIn(".hp-low", css)
+        self.assertIn(".hp-critical", css)
+        self.assertIn(".charging", css)
+
+        # Animações de dano e efeitos
+        self.assertIn(".damaged", css)
+        self.assertIn("@keyframes damage-shake", css)
+        self.assertIn("@keyframes damage-flash", css)
+        self.assertIn("@keyframes hp-critical-blink", css)
+
+
+if __name__ == "__main__":
+    unittest.main()
