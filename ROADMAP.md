@@ -23,7 +23,7 @@ Mantém o `unittest` como runner; `hypothesis` e `coverage` se integram a ele.
 
 - [x] Arena de batalha com posicionamento clássico (inimigo no topo direito, jogador na base esquerda) e barras animadas de HP e Ki.
 - [x] Caixa de diálogo retrô e grade de ações **2x2** (`LUTAR`, `DEFENDER`, `KI / FORMA`, `ITENS / EQUIPE`) navegável via D-Pad + A/B.
-- [ ] Submenus interativos para golpes especiais, posturas defensivas, transformações, uso de cápsulas e troca de equipe (Tag Team).
+- [x] Submenus interativos para golpes especiais, posturas defensivas, transformações, uso de cápsulas e troca de equipe (Tag Team).
 
 ## Fase 3: Pixel Art, Animações de Ki, Campanha e Save Web
 

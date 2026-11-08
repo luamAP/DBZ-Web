@@ -40,6 +40,7 @@
 | `tests/test_web_battle_arena.py` | Testes da arena de batalha, barras animadas e módulo frontend BattleUI |
 | `tests/test_web_controller.py` | Testes do módulo de controle virtual (touch, teclado e data-attributes) |
 | `tests/test_web_menu_2x2.py` | Testes da grade de ações 2x2, cursor retrô e integração de navegação |
+| `tests/test_web_submenus.py` | Testes dos submenus de combate, transição de telas e controle por gamepad |
 | `run_tests.py` | Roda `tests/`; console = resumo + falhas + cobertura; logs detalhados em `logs/` |
 | `pyproject.toml` | Metadados do projeto e declaração de dependências gerenciadas via `uv` |
 | `uv.lock` | Lockfile multiplataforma de dependências do `uv` |

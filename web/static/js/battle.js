@@ -207,6 +207,9 @@
 
             if (state.player) {
                 this.updateCombatant('player', state.player);
+                if (window.battleMenu && typeof window.battleMenu.setCombatantData === 'function') {
+                    window.battleMenu.setCombatantData(state.player, state.team, state.inventory);
+                }
             }
 
             const enemy = state.enemy || state.opponent;

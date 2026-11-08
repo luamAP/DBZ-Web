@@ -457,6 +457,106 @@ html, body {
 }
 
 /* ==========================================================================
+   Submenus Retrô de Batalha (Golpes, Defesas, Ki/Transformações, Itens/Equipe)
+   ========================================================================== */
+.battle-submenu {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 3px 6px;
+    border: 2px solid var(--gb-screen-dark);
+    border-radius: 3px;
+    background: rgba(139, 172, 15, 0.95);
+    box-shadow: inset 1px 1px 0 rgba(255, 255, 255, 0.25);
+    min-height: 52px;
+    box-sizing: border-box;
+}
+
+.battle-submenu.hidden {
+    display: none;
+}
+
+.submenu-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px dashed var(--gb-screen-mid);
+    padding-bottom: 2px;
+    margin-bottom: 2px;
+}
+
+.submenu-title {
+    font-size: 10px;
+    font-weight: bold;
+    color: var(--gb-screen-dark);
+    letter-spacing: -0.2px;
+}
+
+.submenu-back-btn {
+    background: transparent;
+    border: none;
+    font-family: var(--gb-font);
+    font-size: 9px;
+    font-weight: bold;
+    color: var(--gb-screen-mid);
+    cursor: pointer;
+    padding: 0;
+}
+
+.submenu-back-btn:hover,
+.submenu-back-btn:active {
+    color: var(--gb-screen-dark);
+    text-decoration: underline;
+}
+
+.submenu-list {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    max-height: 52px;
+    overflow-y: auto;
+}
+
+.submenu-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: transparent;
+    border: none;
+    outline: none;
+    font-family: var(--gb-font);
+    font-size: 10px;
+    font-weight: bold;
+    color: var(--gb-screen-dark);
+    cursor: pointer;
+    padding: 1px 0;
+    text-align: left;
+    white-space: nowrap;
+}
+
+.submenu-item-left {
+    display: flex;
+    align-items: center;
+}
+
+.submenu-item-info {
+    font-size: 9px;
+    color: var(--gb-screen-dark);
+    opacity: 0.85;
+    font-weight: normal;
+    margin-left: 6px;
+}
+
+.submenu-item.selected .menu-cursor {
+    visibility: visible;
+    animation: cursor-blink 0.75s infinite steps(1);
+}
+
+.submenu-item:focus-visible {
+    outline: 1px dotted var(--gb-screen-dark);
+}
+
+/* ==========================================================================
    METADE INFERIOR: Controles Físicos Virtuais
    ========================================================================== */
 .gameboy-controls-wrapper {
