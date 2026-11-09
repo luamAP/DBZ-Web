@@ -58,6 +58,8 @@
                             <!-- Sprite e Plataforma do Oponente -->
                             <div class="sprite-area opponent" id="enemySpriteArea">
                                 <div class="pixel-sprite-placeholder pixel-sprite-container enemy-sprite" id="enemySprite">
+                                    <div class="ki-aura-effect" id="enemyKiAura" aria-hidden="true"></div>
+                                    <div class="damage-popup" id="enemyDamagePopup" aria-hidden="true"></div>
                                     <img class="character-sprite" id="enemySpriteImg" src="" alt="Oponente" style="display: none;" />
                                     <span class="pixel-sprite-fallback" id="enemySpriteFallback">[OPONENTE]</span>
                                 </div>
@@ -68,10 +70,15 @@
                             <div class="sprite-area player" id="playerSpriteArea">
                                 <div class="battle-ground player-ground" aria-hidden="true"></div>
                                 <div class="pixel-sprite-placeholder pixel-sprite-container player-sprite" id="playerSprite">
+                                    <div class="ki-aura-effect" id="playerKiAura" aria-hidden="true"></div>
+                                    <div class="damage-popup" id="playerDamagePopup" aria-hidden="true"></div>
                                     <img class="character-sprite" id="playerSpriteImg" src="" alt="Jogador" style="display: none;" />
                                     <span class="pixel-sprite-fallback" id="playerSpriteFallback">[JOGADOR]</span>
                                 </div>
                             </div>
+
+                            <!-- Camada de Efeitos Visuais de Combate (Projéteis, Raios e Impactos) -->
+                            <div class="battle-effects-layer" id="battleEffectsLayer" aria-hidden="true"></div>
 
                             <!-- Painel do Jogador -->
                             <div class="hud-player" id="playerHud">

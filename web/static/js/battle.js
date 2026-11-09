@@ -59,6 +59,8 @@
                 playerSprite: document.getElementById('playerSprite'),
                 playerSpriteImg: document.getElementById('playerSpriteImg'),
                 playerSpriteFallback: document.getElementById('playerSpriteFallback'),
+                playerKiAura: document.getElementById('playerKiAura'),
+                playerDamagePopup: document.getElementById('playerDamagePopup'),
                 playerHud: document.getElementById('playerHud'),
 
                 // Oponente
@@ -71,9 +73,12 @@
                 enemySprite: document.getElementById('enemySprite'),
                 enemySpriteImg: document.getElementById('enemySpriteImg'),
                 enemySpriteFallback: document.getElementById('enemySpriteFallback'),
+                enemyKiAura: document.getElementById('enemyKiAura'),
+                enemyDamagePopup: document.getElementById('enemyDamagePopup'),
                 opponentHud: document.getElementById('opponentHud'),
 
-                // Diálogo
+                // Efeitos Visuais e Diálogo
+                battleEffectsLayer: document.getElementById('battleEffectsLayer'),
                 dialogueText: document.getElementById('dialogueText'),
             };
         }
@@ -88,7 +93,19 @@
 
             document.addEventListener('battle-damage', (e) => {
                 if (e.detail && e.detail.target) {
-                    this.animateDamage(e.detail.target);
+                    this.animateDamage(e.detail.target, e.detail.amount || null);
+                }
+            });
+
+            document.addEventListener('battle-ki-aura', (e) => {
+                if (e.detail && e.detail.target) {
+                    this.playKiAura(e.detail.target, e.detail.duration || 800);
+                }
+            });
+
+            document.addEventListener('battle-special-attack', (e) => {
+                if (e.detail && e.detail.source) {
+                    this.playSpecialAttackAnimation(e.detail.source, e.detail.options || {});
                 }
             });
 
@@ -222,9 +239,9 @@
         }
 
         /**
-         * Dispara feedback visual de dano (shake + flash) no alvo
+         * Dispara feedback visual de dano (shake + flash) no alvo e popup numérico opcional
          */
-        animateDamage(target) {
+        animateDamage(target, damageAmount = null) {
             const isPlayer = target === 'player';
             const sprite = isPlayer ? this.elements.playerSprite : this.elements.enemySprite;
             const hud = isPlayer ? this.elements.playerHud : this.elements.opponentHud;
@@ -236,6 +253,102 @@
                 void el.offsetWidth;
                 el.classList.add('damaged');
                 setTimeout(() => el.classList.remove('damaged'), 360);
+            });
+
+            if (damageAmount !== null && typeof damageAmount === 'number' && damageAmount > 0) {
+                this.showDamagePopup(target, damageAmount);
+            }
+        }
+
+        /**
+         * Exibe popup flutuante de dano numérico retrô sobre o combatente
+         */
+        showDamagePopup(target, amount) {
+            if (!amount || amount <= 0) return;
+            const isPlayer = target === 'player';
+            const popup = isPlayer ? this.elements.playerDamagePopup : this.elements.enemyDamagePopup;
+            if (!popup) return;
+
+            popup.textContent = `-${amount} HP`;
+            popup.classList.remove('show');
+            void popup.offsetWidth;
+            popup.classList.add('show');
+            setTimeout(() => {
+                popup.classList.remove('show');
+            }, 850);
+        }
+
+        /**
+         * Dispara efeito visual de aura de Ki (partículas e chamas de energia ao redor do sprite)
+         */
+        playKiAura(target, duration = 800) {
+            return new Promise((resolve) => {
+                const isPlayer = target === 'player';
+                const spriteContainer = isPlayer ? this.elements.playerSprite : this.elements.enemySprite;
+                const auraEl = isPlayer ? this.elements.playerKiAura : this.elements.enemyKiAura;
+
+                if (spriteContainer) {
+                    spriteContainer.classList.add('ki-aura-active', 'charging-ki');
+                }
+                if (auraEl) {
+                    auraEl.classList.add('active');
+                }
+                this.pulseKi(target, duration);
+
+                setTimeout(() => {
+                    if (spriteContainer) {
+                        spriteContainer.classList.remove('ki-aura-active', 'charging-ki');
+                    }
+                    if (auraEl) {
+                        auraEl.classList.remove('active');
+                    }
+                    resolve();
+                }, duration);
+            });
+        }
+
+        /**
+         * Dispara animação de ataque especial com feixe/rajada e explosão de impacto
+         */
+        playSpecialAttackAnimation(source, options = {}) {
+            return new Promise((resolve) => {
+                const layer = this.elements.battleEffectsLayer;
+                const isPlayer = source === 'player';
+                const target = isPlayer ? 'enemy' : 'player';
+
+                if (!layer) {
+                    this.animateDamage(target, options.damage || null);
+                    resolve();
+                    return;
+                }
+
+                const beam = document.createElement('div');
+                beam.className = `special-attack-beam from-${source}`;
+                layer.appendChild(beam);
+
+                setTimeout(() => {
+                    // Impacto no alvo
+                    const impact = document.createElement('div');
+                    impact.className = 'impact-burst';
+                    impact.style.left = isPlayer ? '75%' : '25%';
+                    impact.style.top = isPlayer ? '28%' : '65%';
+                    layer.appendChild(impact);
+
+                    if (options.isSupreme) {
+                        const flash = document.createElement('div');
+                        flash.className = 'screen-flash';
+                        layer.appendChild(flash);
+                        setTimeout(() => flash.remove(), 280);
+                    }
+
+                    this.animateDamage(target, options.damage || null);
+
+                    setTimeout(() => {
+                        beam.remove();
+                        impact.remove();
+                        resolve();
+                    }, 250);
+                }, 320);
             });
         }
 
@@ -323,6 +436,44 @@
                 });
                 const data = await response.json();
                 if (response.ok && data.success && data.battle) {
+                    const playerEv = data.player_event;
+                    const aiEv = data.ai_event;
+
+                    // 1. Animação da ação do Jogador
+                    if (playerEv) {
+                        if (playerEv.action === 'charge_ki') {
+                            await this.playKiAura('player', 700);
+                        } else if (playerEv.action === 'transform') {
+                            await this.playKiAura('player', 850);
+                        } else if (playerEv.action === 'move') {
+                            const mType = (playerEv.data && playerEv.data.move_type) || 'basic';
+                            const dmg = playerEv.data ? playerEv.data.damage_dealt : 0;
+                            if (mType === 'special') {
+                                await this.playSpecialAttackAnimation('player', { damage: dmg, isSupreme: dmg >= 40 });
+                            } else {
+                                this.animateDamage('enemy', dmg);
+                            }
+                        }
+                    }
+
+                    // 2. Animação do turno de resposta da IA com timing cadenciado estilo Game Boy
+                    if (aiEv) {
+                        await new Promise((r) => setTimeout(r, 400));
+                        if (aiEv.action === 'charge' || aiEv.action === 'charge_ki') {
+                            await this.playKiAura('enemy', 700);
+                        } else if (aiEv.action === 'transform') {
+                            await this.playKiAura('enemy', 850);
+                        } else if (aiEv.action === 'move') {
+                            const mType = (aiEv.data && aiEv.data.move_type) || 'basic';
+                            const dmg = aiEv.data ? aiEv.data.damage_dealt : 0;
+                            if (mType === 'special') {
+                                await this.playSpecialAttackAnimation('enemy', { damage: dmg, isSupreme: dmg >= 40 });
+                            } else {
+                                this.animateDamage('player', dmg);
+                            }
+                        }
+                    }
+
                     this.updateFromState(data.battle);
                 } else if (data.error && this.elements.dialogueText) {
                     this.elements.dialogueText.textContent = data.error;

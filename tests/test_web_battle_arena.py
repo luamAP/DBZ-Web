@@ -27,11 +27,16 @@ class TestWebBattleArena(unittest.TestCase):
         self.assertIn('id="enemySprite"', html)
         self.assertIn('id="enemySpriteImg"', html)
         self.assertIn('id="enemySpriteFallback"', html)
+        self.assertIn('id="enemyKiAura"', html)
+        self.assertIn('id="enemyDamagePopup"', html)
         self.assertIn('id="playerSpriteArea"', html)
         self.assertIn('id="playerSprite"', html)
         self.assertIn('id="playerSpriteImg"', html)
         self.assertIn('id="playerSpriteFallback"', html)
+        self.assertIn('id="playerKiAura"', html)
+        self.assertIn('id="playerDamagePopup"', html)
         self.assertIn('class="character-sprite"', html)
+        self.assertIn('id="battleEffectsLayer"', html)
 
         # Barras de HP e Ki com classes de status
         self.assertIn('id="enemyHpBar"', html)
@@ -66,6 +71,9 @@ class TestWebBattleArena(unittest.TestCase):
         self.assertIn("getHpStatusClass", js)
         self.assertIn("updateCombatant", js)
         self.assertIn("animateDamage", js)
+        self.assertIn("showDamagePopup", js)
+        self.assertIn("playKiAura", js)
+        self.assertIn("playSpecialAttackAnimation", js)
         self.assertIn("updateFromState", js)
         self.assertIn("window.BattleUI = BattleUI", js)
 
@@ -96,6 +104,17 @@ class TestWebBattleArena(unittest.TestCase):
         self.assertIn("image-rendering: pixelated", css)
         self.assertIn(".character-sprite", css)
         self.assertIn(".pixel-sprite-container.has-sprite", css)
+
+        # Efeitos visuais de combate: aura de ki, dano numérico e ataques especiais
+        self.assertIn(".ki-aura-effect", css)
+        self.assertIn("@keyframes ki-aura-pulse", css)
+        self.assertIn(".damage-popup", css)
+        self.assertIn("@keyframes damage-float", css)
+        self.assertIn(".special-attack-beam", css)
+        self.assertIn("@keyframes beam-shoot-player", css)
+        self.assertIn("@keyframes beam-shoot-enemy", css)
+        self.assertIn(".impact-burst", css)
+        self.assertIn("@keyframes impact-explode", css)
 
     def test_battle_api_exposes_sprites(self):
         res = self.client.get("/api/battle/state")

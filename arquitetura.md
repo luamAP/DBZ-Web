@@ -23,7 +23,7 @@
 | `web/templates/index.html` | Template HTML5 da carcaça do Game Boy (visor superior e controles inferiores) |
 | `web/static/css/gameboy.css` | Folha de estilos retrô Game Boy mobile-first com paleta DMG e botões táteis |
 | `web/static/js/gamepad.js` | Controlador unificado de input virtual touch, teclado e feedback haptic |
-| `web/static/js/battle.js` | Módulo de animação e sincronização da arena de batalha (barras de HP/Ki e dano) |
+| `web/static/js/battle.js` | Módulo de animação e sincronização da arena de batalha (barras de HP/Ki, auras, ataques especiais e dano) |
 | `web/static/js/menu.js` | Navegação e máquina de estados do menu 2x2 estilo Pokémon via D-Pad e A/B |
 | `web/static/img/sprites/` | Sprites e retratos Pixel Art 16-bits vetorizados (SVG) de combatentes e transformações |
 | `tests/test_character.py` | Atributos, transformações, itens |

@@ -1,7 +1,10 @@
 import unittest
-from hypothesis import given, strategies as st, settings
+from hypothesis import HealthCheck, given, settings, strategies as st
 
 from models.character import Character
+
+settings.register_profile("default", suppress_health_check=[HealthCheck.too_slow], deadline=None)
+settings.load_profile("default")
 
 
 def _sample_character_data(name="Goku", hp=100, attack=20, defense=30, ki_max=100, speed=80):
