@@ -26,7 +26,8 @@ Este documento descreve a especificação de esquema utilizada em `data/characte
 | `defense` | Inteiro | Capacidade de absorção e mitigação de dano |
 | `ki_max` | Inteiro | Capacidade máxima de armazenamento de Ki |
 | `speed` | Inteiro | Determina a ordem de iniciativa de turnos |
-| `transformations` | Lista | Formas evolutivas disponíveis com seus respectivos requisitos e bônus |
+| `sprites` | Dicionário (opcional) | Caminhos dos assets retrô (`front`, `back`, `portrait`) |
+| `transformations` | Lista | Formas evolutivas disponíveis com requisitos, bônus e `sprites` opcionais |
 | `moves` | Lista | Conjunto de técnicas (golpe básico, combos de múltiplos acertos e 3 especiais) |
 
 ---
@@ -57,6 +58,10 @@ NomeDoLutador:
   defense: 30
   ki_max: 100
   speed: 80
+  sprites:
+    front: "/static/img/sprites/lutador_front.svg"
+    back: "/static/img/sprites/lutador_back.svg"
+    portrait: "/static/img/sprites/lutador_portrait.svg"
   transformations:
     - name: "Nome da Transformação"
       required_ki: 50
@@ -65,6 +70,10 @@ NomeDoLutador:
         attack: 1.25
         defense: 1.15
         speed: 1.20
+      sprites:
+        front: "/static/img/sprites/lutador_trans_front.svg"
+        back: "/static/img/sprites/lutador_trans_back.svg"
+        portrait: "/static/img/sprites/lutador_trans_portrait.svg"
   moves:
     - name: "Ataque Básico"
       ki_cost: 0

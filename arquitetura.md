@@ -25,6 +25,7 @@
 | `web/static/js/gamepad.js` | Controlador unificado de input virtual touch, teclado e feedback haptic |
 | `web/static/js/battle.js` | Módulo de animação e sincronização da arena de batalha (barras de HP/Ki e dano) |
 | `web/static/js/menu.js` | Navegação e máquina de estados do menu 2x2 estilo Pokémon via D-Pad e A/B |
+| `web/static/img/sprites/` | Sprites e retratos Pixel Art 16-bits vetorizados (SVG) de combatentes e transformações |
 | `tests/test_character.py` | Atributos, transformações, itens |
 | `tests/test_team.py` | Rotação e KO |
 | `tests/test_campaign.py` | Progressão de campanha, drops e recuperação |

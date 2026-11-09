@@ -88,6 +88,21 @@ class TestDataIntegrity(unittest.TestCase):
             self._assert_int(move.get("hits"), f"hits do combo '{move['name']}' em {context}", min_val=2)
             self._assert_num(move.get("hit_chance"), f"hit_chance de '{move['name']}' em {context}", min_val=0.01, max_val=1.0)
 
+    def _assert_sprites(self, sprites, context):
+        self.assertIsInstance(sprites, dict, f"sprites em {context} deve ser um dicionário.")
+        project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        for key in ("front", "back", "portrait"):
+            self.assertIn(key, sprites, f"sprites em {context} deve conter '{key}'.")
+            val = sprites[key]
+            self._assert_non_empty_str(val, f"sprites.{key} em {context}")
+            self.assertTrue(val.startswith("/static/"), f"sprites.{key} em {context} deve iniciar com '/static/'.")
+            rel_path = val.lstrip("/").replace("/", os.sep)
+            asset_path = os.path.join(project_root, "web", rel_path)
+            self.assertTrue(
+                os.path.isfile(asset_path),
+                f"Asset de sprite não encontrado no disco para {context}: {asset_path}"
+            )
+
     # --- Testes de Integridade Estrutural e Arquivos ---
 
     def test_yaml_files_have_no_duplicate_keys(self):
@@ -246,6 +261,10 @@ class TestDataIntegrity(unittest.TestCase):
                     f"'{fighter_id}' deve possuir pelo menos 1 golpe 'basic' com ki_cost == 0."
                 )
 
+                # Sprites (opcional no schema genérico)
+                if "sprites" in fighter:
+                    self._assert_sprites(fighter["sprites"], f"lutador '{fighter_id}'")
+
                 # Transformações (opcional)
                 if "transformations" in fighter and fighter["transformations"]:
                     self.assertIsInstance(fighter["transformations"], list)
@@ -253,6 +272,9 @@ class TestDataIntegrity(unittest.TestCase):
                     for trans in fighter["transformations"]:
                         self._assert_non_empty_str(trans.get("name"), f"Nome de transformação em '{fighter_id}'")
                         trans_names.append(trans["name"])
+
+                        if "sprites" in trans:
+                            self._assert_sprites(trans["sprites"], f"transformação '{trans.get('name')}' em '{fighter_id}'")
 
                         self._assert_int(trans.get("required_ki"), f"required_ki de '{trans.get('name')}'", min_val=0)
                         self.assertLessEqual(
@@ -279,6 +301,18 @@ class TestDataIntegrity(unittest.TestCase):
                         len(set(trans_names)),
                         f"'{fighter_id}' possui transformações com nomes duplicados: {trans_names}"
                     )
+
+    def test_mandatory_combatants_have_sprites(self):
+        """Valida que todos os combatentes obrigatórios e suas transformações possuem sprites configurados e existentes."""
+        fighters = self._get_fighters()
+        for name in MANDATORY_COMBATANTS:
+            with self.subTest(combatant=name):
+                fighter = fighters[name]
+                self.assertIn("sprites", fighter, f"Lutador obrigatório '{name}' deve conter campo 'sprites'.")
+                self._assert_sprites(fighter["sprites"], f"lutador '{name}'")
+                for trans in fighter.get("transformations", []):
+                    self.assertIn("sprites", trans, f"Transformação '{trans.get('name')}' de '{name}' deve conter 'sprites'.")
+                    self._assert_sprites(trans["sprites"], f"transformação '{trans.get('name')}' em '{name}'")
 
     # --- Testes de Itens: Equipamentos e Consumíveis ---
 

@@ -57,6 +57,11 @@ def serialize_character(character):
         "equipped_items": [
             item.get("id", item.get("name")) for item in character.equipped_items
         ],
+        "sprites": (
+            character.get_current_sprites()
+            if hasattr(character, "get_current_sprites")
+            else getattr(character, "sprites", {})
+        ),
     }
 
 
@@ -74,6 +79,11 @@ def serialize_team(team):
                 "ki": m.ki,
                 "max_ki": m.max_ki,
                 "is_alive": m.is_alive(),
+                "sprites": (
+                    m.get_current_sprites()
+                    if hasattr(m, "get_current_sprites")
+                    else getattr(m, "sprites", {})
+                ),
             }
             for idx, m in enumerate(team.members)
         ],

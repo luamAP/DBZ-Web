@@ -64,6 +64,8 @@ class Character:
         self.moves = list(self.base_moves)
         self.transformations = list(data.get('transformations', []))
         self.current_transformation = None
+        self.base_sprites = dict(data.get('sprites', {}))
+        self.sprites = dict(self.base_sprites)
         self.ai_profile = data.get('ai_profile', 'tatico')
         self.combat_cfg = dict(combat_cfg) if combat_cfg else {}
         self.equipped_items = []
@@ -73,6 +75,15 @@ class Character:
 
     def is_alive(self):
         return self.hp > 0
+
+    def get_current_sprites(self):
+        if self.current_transformation:
+            trans_data = next((t for t in self.transformations if t.get('name') == self.current_transformation), None)
+            if trans_data and 'sprites' in trans_data and trans_data['sprites']:
+                merged = dict(self.base_sprites)
+                merged.update(trans_data['sprites'])
+                return merged
+        return dict(self.base_sprites)
 
     def equip_item(self, item_data):
         item_id = item_data.get('id', item_data.get('name'))

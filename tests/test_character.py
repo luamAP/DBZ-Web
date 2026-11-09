@@ -117,6 +117,24 @@ class TestCharacter(unittest.TestCase):
         self.assertFalse(success)
         self.assertIn("Voce nao possui mais unidades", payload['msg'])
 
+    def test_character_sprites_and_transformation_switching(self):
+        # Base sprites
+        base_sprites = self.goku.get_current_sprites()
+        self.assertIn("front", base_sprites)
+        self.assertIn("back", base_sprites)
+        self.assertIn("portrait", base_sprites)
+        self.assertIn("goku_front.svg", base_sprites["front"])
+
+        # Transforma em Super Saiyajin
+        trans = self.goku.transformations[0]
+        self.goku.ki = trans["required_ki"]
+        self.goku.transform(trans)
+
+        ssj_sprites = self.goku.get_current_sprites()
+        self.assertIn("goku_ssj_front.svg", ssj_sprites["front"])
+        self.assertIn("goku_ssj_back.svg", ssj_sprites["back"])
+        self.assertIn("goku_ssj_portrait.svg", ssj_sprites["portrait"])
+
 
 if __name__ == '__main__':
     unittest.main()

@@ -57,6 +57,8 @@
                 playerKiBar: document.getElementById('playerKiBar'),
                 playerKiValues: document.getElementById('playerKiValues'),
                 playerSprite: document.getElementById('playerSprite'),
+                playerSpriteImg: document.getElementById('playerSpriteImg'),
+                playerSpriteFallback: document.getElementById('playerSpriteFallback'),
                 playerHud: document.getElementById('playerHud'),
 
                 // Oponente
@@ -67,6 +69,8 @@
                 enemyHpValues: document.getElementById('enemyHpValues'),
                 enemyKiBar: document.getElementById('enemyKiBar'),
                 enemySprite: document.getElementById('enemySprite'),
+                enemySpriteImg: document.getElementById('enemySpriteImg'),
+                enemySpriteFallback: document.getElementById('enemySpriteFallback'),
                 opponentHud: document.getElementById('opponentHud'),
 
                 // Diálogo
@@ -132,6 +136,31 @@
             // Nome
             if (nameEl && data.name) {
                 nameEl.textContent = data.name.toUpperCase();
+            }
+
+            // Sprite Pixel Art
+            const spriteContainer = isPlayer ? this.elements.playerSprite : this.elements.enemySprite;
+            const spriteImg = isPlayer ? this.elements.playerSpriteImg : this.elements.enemySpriteImg;
+            const spriteFallback = isPlayer ? this.elements.playerSpriteFallback : this.elements.enemySpriteFallback;
+
+            if (spriteContainer && spriteImg) {
+                const sprites = data.sprites || {};
+                const spriteSrc = isPlayer ? (sprites.back || sprites.front) : (sprites.front || sprites.back);
+                if (spriteSrc) {
+                    if (spriteImg.getAttribute('src') !== spriteSrc) {
+                        spriteImg.src = spriteSrc;
+                    }
+                    spriteImg.style.display = 'block';
+                    spriteContainer.classList.add('has-sprite');
+                    if (spriteFallback) spriteFallback.style.display = 'none';
+                } else {
+                    spriteImg.style.display = 'none';
+                    spriteContainer.classList.remove('has-sprite');
+                    if (spriteFallback) {
+                        spriteFallback.style.display = 'block';
+                        spriteFallback.textContent = `[${(data.name || (isPlayer ? 'JOGADOR' : 'OPONENTE')).toUpperCase()}]`;
+                    }
+                }
             }
 
             // Forma / Transformação

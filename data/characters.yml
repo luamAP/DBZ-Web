@@ -59,6 +59,10 @@ Goku:
   defense: 30
   ki_max: 100
   speed: 80
+  sprites:
+    front: "/static/img/sprites/goku_front.svg"
+    back: "/static/img/sprites/goku_back.svg"
+    portrait: "/static/img/sprites/goku_portrait.svg"
   transformations:
     - name: Super Saiyan Goku
       required_ki: 50
@@ -67,6 +71,10 @@ Goku:
         attack: 1.25
         defense: 1.15
         speed: 1.20
+      sprites:
+        front: "/static/img/sprites/goku_ssj_front.svg"
+        back: "/static/img/sprites/goku_ssj_back.svg"
+        portrait: "/static/img/sprites/goku_ssj_portrait.svg"
   moves:
     - name: Melee Attack
       ki_cost: 0
@@ -105,6 +113,10 @@ Vegeta:
   defense: 28
   ki_max: 100
   speed: 84
+  sprites:
+    front: "/static/img/sprites/vegeta_front.svg"
+    back: "/static/img/sprites/vegeta_back.svg"
+    portrait: "/static/img/sprites/vegeta_portrait.svg"
   transformations:
     - name: Super Saiyan Vegeta
       required_ki: 50
@@ -113,6 +125,10 @@ Vegeta:
         attack: 1.30
         defense: 1.10
         speed: 1.15
+      sprites:
+        front: "/static/img/sprites/vegeta_ssj_front.svg"
+        back: "/static/img/sprites/vegeta_ssj_back.svg"
+        portrait: "/static/img/sprites/vegeta_ssj_portrait.svg"
   moves:
     - name: Melee Attack
       ki_cost: 0
@@ -151,6 +167,10 @@ Frieza:
   defense: 32
   ki_max: 110
   speed: 70
+  sprites:
+    front: "/static/img/sprites/frieza_front.svg"
+    back: "/static/img/sprites/frieza_back.svg"
+    portrait: "/static/img/sprites/frieza_portrait.svg"
   transformations:
     - name: Frieza (Final Form)
       required_ki: 60
@@ -159,6 +179,10 @@ Frieza:
         attack: 1.35
         defense: 1.20
         speed: 1.30
+      sprites:
+        front: "/static/img/sprites/frieza_final_front.svg"
+        back: "/static/img/sprites/frieza_final_back.svg"
+        portrait: "/static/img/sprites/frieza_final_portrait.svg"
   moves:
     - name: Tail Whip
       ki_cost: 0

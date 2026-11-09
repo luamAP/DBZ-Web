@@ -57,14 +57,20 @@
 
                             <!-- Sprite e Plataforma do Oponente -->
                             <div class="sprite-area opponent" id="enemySpriteArea">
-                                <div class="pixel-sprite-placeholder enemy-sprite" id="enemySprite">[OPONENTE]</div>
+                                <div class="pixel-sprite-placeholder pixel-sprite-container enemy-sprite" id="enemySprite">
+                                    <img class="character-sprite" id="enemySpriteImg" src="" alt="Oponente" style="display: none;" />
+                                    <span class="pixel-sprite-fallback" id="enemySpriteFallback">[OPONENTE]</span>
+                                </div>
                                 <div class="battle-ground opponent-ground" aria-hidden="true"></div>
                             </div>
 
                             <!-- Sprite e Plataforma do Jogador -->
                             <div class="sprite-area player" id="playerSpriteArea">
                                 <div class="battle-ground player-ground" aria-hidden="true"></div>
-                                <div class="pixel-sprite-placeholder player-sprite" id="playerSprite">[JOGADOR]</div>
+                                <div class="pixel-sprite-placeholder pixel-sprite-container player-sprite" id="playerSprite">
+                                    <img class="character-sprite" id="playerSpriteImg" src="" alt="Jogador" style="display: none;" />
+                                    <span class="pixel-sprite-fallback" id="playerSpriteFallback">[JOGADOR]</span>
+                                </div>
                             </div>
 
                             <!-- Painel do Jogador -->

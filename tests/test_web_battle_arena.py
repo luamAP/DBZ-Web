@@ -25,8 +25,13 @@ class TestWebBattleArena(unittest.TestCase):
         # Sprites e placeholders
         self.assertIn('id="enemySpriteArea"', html)
         self.assertIn('id="enemySprite"', html)
+        self.assertIn('id="enemySpriteImg"', html)
+        self.assertIn('id="enemySpriteFallback"', html)
         self.assertIn('id="playerSpriteArea"', html)
         self.assertIn('id="playerSprite"', html)
+        self.assertIn('id="playerSpriteImg"', html)
+        self.assertIn('id="playerSpriteFallback"', html)
+        self.assertIn('class="character-sprite"', html)
 
         # Barras de HP e Ki com classes de status
         self.assertIn('id="enemyHpBar"', html)
@@ -86,6 +91,49 @@ class TestWebBattleArena(unittest.TestCase):
         self.assertIn("@keyframes damage-shake", css)
         self.assertIn("@keyframes damage-flash", css)
         self.assertIn("@keyframes hp-critical-blink", css)
+
+        # Regras de renderização de sprites retrô
+        self.assertIn("image-rendering: pixelated", css)
+        self.assertIn(".character-sprite", css)
+        self.assertIn(".pixel-sprite-container.has-sprite", css)
+
+    def test_battle_api_exposes_sprites(self):
+        res = self.client.get("/api/battle/state")
+        self.assertEqual(res.status_code, 200)
+        data = res.get_json()
+        self.assertTrue(data.get("success"))
+        battle = data.get("battle", {})
+        self.assertIn("player", battle)
+        self.assertIn("enemy", battle)
+        self.assertIn("sprites", battle["player"])
+        self.assertIn("sprites", battle["enemy"])
+
+        # Valida estrutura dos sprites serializados
+        for key in ("front", "back", "portrait"):
+            self.assertIn(key, battle["player"]["sprites"])
+            self.assertIn(key, battle["enemy"]["sprites"])
+            self.assertTrue(battle["player"]["sprites"][key].startswith("/static/"))
+            self.assertTrue(battle["enemy"]["sprites"][key].startswith("/static/"))
+
+    def test_static_sprite_svgs_are_served(self):
+        sprites_to_check = [
+            "/static/img/sprites/goku_front.svg",
+            "/static/img/sprites/goku_back.svg",
+            "/static/img/sprites/goku_portrait.svg",
+            "/static/img/sprites/goku_ssj_front.svg",
+            "/static/img/sprites/vegeta_front.svg",
+            "/static/img/sprites/vegeta_back.svg",
+            "/static/img/sprites/frieza_front.svg",
+            "/static/img/sprites/frieza_final_front.svg",
+        ]
+        for sprite_url in sprites_to_check:
+            with self.subTest(sprite=sprite_url):
+                res = self.client.get(sprite_url)
+                self.assertEqual(res.status_code, 200)
+                self.assertIn("image/svg+xml", res.content_type)
+                content = res.get_data(as_text=True)
+                self.assertIn("<svg", content)
+                self.assertIn("shape-rendering", content)
 
 
 if __name__ == "__main__":
