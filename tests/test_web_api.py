@@ -337,6 +337,71 @@ class TestWebApi(unittest.TestCase):
             if os.path.exists(temp_save):
                 os.remove(temp_save)
 
+    def test_campaign_start_and_next_stage_flow(self):
+        # 1. Inicia Modo Campanha
+        res_start = self.client.post(
+            "/api/campaign/start",
+            json={"session_id": "sess_camp", "campaign_id": "saiyan_invasion", "player_id": "Goku"},
+        )
+        self.assertEqual(res_start.status_code, 200)
+        data_start = res_start.get_json()
+        self.assertTrue(data_start["success"])
+        self.assertEqual(data_start["stage"]["enemy"], "Vegeta")
+        self.assertEqual(data_start["battle"]["enemy"]["name"], "Vegeta")
+        self.assertIn("campaign", data_start["battle"])
+
+        # 2. Avança para a próxima fase (derrotou Vegeta -> Frieza)
+        res_next = self.client.post(
+            "/api/campaign/next",
+            json={"session_id": "sess_camp"},
+        )
+        self.assertEqual(res_next.status_code, 200)
+        data_next = res_next.get_json()
+        self.assertTrue(data_next["success"])
+        self.assertFalse(data_next["completed"])
+        self.assertEqual(data_next["stage"]["enemy"], "Frieza")
+        self.assertIn("Frieza", data_next["battle"]["enemy"]["name"])
+
+        # 3. Avança final da campanha
+        res_finish = self.client.post(
+            "/api/campaign/next",
+            json={"session_id": "sess_camp"},
+        )
+        self.assertEqual(res_finish.status_code, 200)
+        data_finish = res_finish.get_json()
+        self.assertTrue(data_finish["success"])
+        self.assertTrue(data_finish["completed"])
+        self.assertEqual(data_finish["battle"]["status"], "campaign_completed")
+
+    def test_campaign_save_and_restore_via_api(self):
+        temp_save = "temp_test_camp_save.json"
+        try:
+            # Inicia campanha
+            self.client.post(
+                "/api/campaign/start",
+                json={"session_id": "sess_camp_save", "campaign_id": "saiyan_invasion", "player_id": "Goku"},
+            )
+            # Salva jogo com campanha
+            res_save = self.client.post(
+                "/api/save",
+                json={"filename": temp_save, "session_id": "sess_camp_save"},
+            )
+            self.assertEqual(res_save.status_code, 200)
+
+            # Carrega jogo em nova sessão
+            res_load = self.client.post(
+                "/api/load",
+                json={"filename": temp_save, "session_id": "sess_restored"},
+            )
+            self.assertEqual(res_load.status_code, 200)
+            data_load = res_load.get_json()
+            self.assertTrue(data_load["success"])
+            self.assertIn("battle", data_load)
+            self.assertEqual(data_load["battle"]["campaign"]["campaign_id"], "saiyan_invasion")
+        finally:
+            if os.path.exists(temp_save):
+                os.remove(temp_save)
+
 
 if __name__ == "__main__":
     unittest.main()

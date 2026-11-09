@@ -80,6 +80,13 @@
                 // Efeitos Visuais e Diálogo
                 battleEffectsLayer: document.getElementById('battleEffectsLayer'),
                 dialogueText: document.getElementById('dialogueText'),
+
+                // Modo Campanha
+                campaignModal: document.getElementById('campaignModal'),
+                campaignModalHeader: document.getElementById('campaignModalHeader'),
+                campaignStageTitle: document.getElementById('campaignStageTitle'),
+                campaignDropsList: document.getElementById('campaignDropsList'),
+                campaignContinueBtn: document.getElementById('campaignContinueBtn'),
             };
         }
 
@@ -114,6 +121,21 @@
                     this.handleActionExecute(e.detail);
                 }
             });
+
+            if (this.elements.campaignContinueBtn) {
+                this.elements.campaignContinueBtn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    this.handleCampaignContinue();
+                });
+            }
+
+            document.addEventListener('gb-input', (e) => {
+                const { button, state } = e.detail || {};
+                if (state === 'pressed' && button === 'A' && this.elements.campaignModal && this.elements.campaignModal.style.display !== 'none') {
+                    this.handleCampaignContinue();
+                }
+            });
+        }
         }
 
         /**
@@ -393,6 +415,70 @@
             const message = battle.message || (battle.log && battle.log.length > 0 ? battle.log[battle.log.length - 1] : null);
             if (message && this.elements.dialogueText) {
                 this.elements.dialogueText.textContent = message;
+            }
+
+            this.state.battle = battle;
+
+            // Se a batalha foi vencida em modo campanha, exibe modal de vitória e drops
+            if ((battle.status === 'won' || battle.status === 'campaign_completed') && (battle.campaign_stage || battle.campaign)) {
+                this.showCampaignModal(battle);
+            } else if (this.elements.campaignModal) {
+                this.elements.campaignModal.style.display = 'none';
+            }
+        }
+
+        showCampaignModal(battle) {
+            if (!this.elements.campaignModal) return;
+            const stage = battle.campaign_stage || {};
+            const isCompleted = battle.status === 'campaign_completed';
+
+            if (this.elements.campaignModalHeader) {
+                this.elements.campaignModalHeader.textContent = isCompleted
+                    ? '★ CAMPANHA CONCLUÍDA! ★'
+                    : '★ VITÓRIA NA FASE! ★';
+            }
+            if (this.elements.campaignStageTitle) {
+                this.elements.campaignStageTitle.textContent = isCompleted
+                    ? 'Todos os adversários foram derrotados!'
+                    : `Fase ${stage.stage || 1}: ${stage.name || 'Concluída'}`;
+            }
+            if (this.elements.campaignDropsList) {
+                const drops = battle.last_drops || [];
+                if (drops.length > 0) {
+                    this.elements.campaignDropsList.innerHTML = drops
+                        .map(d => `<li><span class="campaign-drop-badge">${d.quantity || 1}x</span> ${d.item_id || d.name}</li>`)
+                        .join('');
+                } else {
+                    this.elements.campaignDropsList.innerHTML = '<li>Nenhum item dropado nesta fase.</li>';
+                }
+            }
+            if (this.elements.campaignContinueBtn) {
+                this.elements.campaignContinueBtn.textContent = isCompleted
+                    ? '[A] REINICIAR CAMPANHA'
+                    : '[A] AVANÇAR PARA PRÓXIMA FASE';
+            }
+            this.elements.campaignModal.style.display = 'flex';
+        }
+
+        async handleCampaignContinue() {
+            if (!this.elements.campaignModal || this.elements.campaignModal.style.display === 'none') return;
+            this.elements.campaignModal.style.display = 'none';
+
+            const isCompleted = this.state && this.state.battle && this.state.battle.status === 'campaign_completed';
+            const endpoint = isCompleted ? '/api/campaign/start' : '/api/campaign/next';
+
+            try {
+                const res = await fetch(endpoint, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ session_id: 'default' }),
+                });
+                const data = await res.json();
+                if (res.ok && data.success && data.battle) {
+                    this.updateFromState(data.battle);
+                }
+            } catch (err) {
+                console.error('Erro ao avançar estágio de campanha:', err);
             }
         }
 

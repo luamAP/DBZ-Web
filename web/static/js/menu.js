@@ -64,6 +64,10 @@
             this.submenuListEl = document.getElementById('submenuList');
             this.submenuBackBtn = document.getElementById('submenuBackBtn');
             this.dialogueTextEl = document.getElementById('dialogueText');
+            this.systemMenuModal = document.getElementById('systemMenuModal');
+            this.systemMenuList = document.getElementById('systemMenuList');
+            this.systemMenuIndex = 0;
+            this.previousScreen = 'root';
 
             const initialEl = document.getElementById('initialBattleData');
             if (initialEl && initialEl.textContent.trim()) {
@@ -116,6 +120,29 @@
                 if (!this.enabled || !this.visible) return;
                 const { button, state } = e.detail || {};
                 if (state !== 'pressed') return;
+
+                if (button === 'START' || button === 'SELECT') {
+                    this.toggleSystemMenu();
+                    return;
+                }
+
+                if (this.currentScreen === 'system') {
+                    switch (button) {
+                        case 'UP':
+                        case 'DOWN':
+                            this.navigateSystemMenu(button);
+                            break;
+                        case 'A':
+                            this.selectSystemMenuItem();
+                            break;
+                        case 'B':
+                            this.closeSystemMenu();
+                            break;
+                        default:
+                            break;
+                    }
+                    return;
+                }
 
                 if (this.currentScreen === 'root') {
                     switch (button) {
@@ -624,6 +651,130 @@
             }
             if (this.submenuElement) {
                 this.submenuElement.classList.toggle('disabled', !this.enabled);
+            }
+        }
+
+        /**
+         * Alterna exibição do menu de sistema (START / SELECT)
+         */
+        toggleSystemMenu() {
+            if (this.currentScreen === 'system') {
+                this.closeSystemMenu();
+            } else {
+                this.openSystemMenu();
+            }
+        }
+
+        openSystemMenu() {
+            this.previousScreen = this.currentScreen;
+            this.currentScreen = 'system';
+            this.systemMenuIndex = 0;
+            if (this.systemMenuModal) {
+                this.systemMenuModal.style.display = 'flex';
+            }
+            this.updateSystemMenuVisuals();
+            this.emitEvent('battle:system-menu-open', { index: this.systemMenuIndex });
+        }
+
+        closeSystemMenu() {
+            if (this.systemMenuModal) {
+                this.systemMenuModal.style.display = 'none';
+            }
+            this.currentScreen = this.previousScreen || 'root';
+            this.emitEvent('battle:system-menu-close');
+            if (this.currentScreen === 'root') {
+                this.updateSelectionVisuals();
+            } else if (this.currentScreen === 'submenu') {
+                this.updateSubmenuVisuals();
+            }
+        }
+
+        navigateSystemMenu(direction) {
+            const items = this.systemMenuList ? Array.from(this.systemMenuList.querySelectorAll('.system-menu-item')) : [];
+            if (items.length === 0) return;
+
+            if (direction === 'UP' && this.systemMenuIndex > 0) {
+                this.systemMenuIndex--;
+            } else if (direction === 'DOWN' && this.systemMenuIndex < items.length - 1) {
+                this.systemMenuIndex++;
+            }
+            this.updateSystemMenuVisuals();
+        }
+
+        updateSystemMenuVisuals() {
+            if (!this.systemMenuList) return;
+            const items = Array.from(this.systemMenuList.querySelectorAll('.system-menu-item'));
+            items.forEach((item, idx) => {
+                const isSelected = idx === this.systemMenuIndex;
+                item.classList.toggle('selected', isSelected);
+                const cursor = item.querySelector('.menu-cursor');
+                if (cursor) {
+                    cursor.textContent = isSelected ? '▶' : ' ';
+                    cursor.style.visibility = isSelected ? 'visible' : 'hidden';
+                }
+            });
+        }
+
+        async selectSystemMenuItem() {
+            if (!this.systemMenuList) return;
+            const items = Array.from(this.systemMenuList.querySelectorAll('.system-menu-item'));
+            const selected = items[this.systemMenuIndex];
+            if (!selected) return;
+
+            const action = selected.getAttribute('data-action');
+            if (action === 'continue') {
+                this.closeSystemMenu();
+            } else if (action === 'campaign') {
+                this.closeSystemMenu();
+                try {
+                    const res = await fetch('/api/campaign/start', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ session_id: 'default' }),
+                    });
+                    const data = await res.json();
+                    if (res.ok && data.success && data.battle) {
+                        this.setMessage(`Modo Campanha iniciado! Fase 1: ${data.stage ? data.stage.name : ''}`);
+                        document.dispatchEvent(new CustomEvent('battle-update', { detail: { state: data.battle } }));
+                    }
+                } catch (e) {
+                    console.error('Erro ao iniciar modo campanha:', e);
+                }
+            } else if (action === 'save') {
+                this.closeSystemMenu();
+                try {
+                    const res = await fetch('/api/save', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ session_id: 'default' }),
+                    });
+                    const data = await res.json();
+                    if (res.ok && data.success) {
+                        this.setMessage('Jogo salvo com sucesso em save.json!');
+                    } else {
+                        this.setMessage('Erro ao salvar o jogo.');
+                    }
+                } catch (e) {
+                    console.error('Erro ao salvar:', e);
+                }
+            } else if (action === 'load') {
+                this.closeSystemMenu();
+                try {
+                    const res = await fetch('/api/load', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ session_id: 'default' }),
+                    });
+                    const data = await res.json();
+                    if (res.ok && data.success && data.battle) {
+                        this.setMessage('Jogo carregado com sucesso!');
+                        document.dispatchEvent(new CustomEvent('battle-update', { detail: { state: data.battle } }));
+                    } else {
+                        this.setMessage('Nenhum save encontrado para carregar.');
+                    }
+                } catch (e) {
+                    console.error('Erro ao carregar save:', e);
+                }
             }
         }
 

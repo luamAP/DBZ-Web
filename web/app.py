@@ -14,7 +14,7 @@ from engine.data_loader import (
     load_items_data,
     save_game_state,
 )
-from models import Character, Team
+from models import Campaign, Character, Team
 
 META_KEYS = {"defense_mechanics", "ai_profiles", "combat_mechanics"}
 
@@ -107,6 +107,9 @@ def serialize_battle(battle):
         "log": battle.get("log", []),
         "defense_mechanics": chars_data.get("defense_mechanics", {}),
         "consumables": items_data.get("consumables", {}),
+        "campaign": battle.get("campaign"),
+        "campaign_stage": battle.get("campaign_stage"),
+        "last_drops": battle.get("last_drops", []),
     }
 
 
@@ -193,6 +196,136 @@ def create_app(test_config=None):
     def get_campaign():
         data = load_campaign_data()
         return jsonify(data)
+
+    @app.route("/api/campaign/start", methods=["POST"])
+    def start_campaign():
+        payload = request.get_json(silent=True) or {}
+        session_id = payload.get("session_id", "default")
+        campaign_id = payload.get("campaign_id", "saiyan_invasion")
+        player_id = payload.get("player_id", "Goku")
+
+        camp_data_all = load_campaign_data()
+        all_campaigns = camp_data_all.get("campaigns", {})
+        if campaign_id not in all_campaigns:
+            return jsonify({"error": f"Campanha '{campaign_id}' não encontrada."}), 404
+
+        camp_instance = Campaign(all_campaigns[campaign_id])
+        stage_data = camp_instance.get_current_stage()
+        if not stage_data:
+            return jsonify({"error": "Campanha sem estágios válidos."}), 400
+
+        chars_data = load_characters_data()
+        catalog = get_characters_catalog(chars_data)
+        items_data = load_items_data()
+        consumables_cfg = items_data.get("consumables", {})
+        combat_cfg = chars_data.get("combat_mechanics", {})
+
+        player_data = find_character_data(catalog, player_id)
+        if not player_data:
+            return jsonify({"error": f"Personagem '{player_id}' não encontrado."}), 404
+
+        enemy_name = stage_data.get("enemy")
+        enemy_data = find_character_data(catalog, enemy_name)
+        if not enemy_data:
+            return jsonify({"error": f"Inimigo da fase '{enemy_name}' não encontrado."}), 404
+
+        player = Character(
+            player_data,
+            initial_inventory=create_initial_inventory(consumables_cfg),
+            combat_cfg=combat_cfg,
+        )
+        enemy = Character(enemy_data, combat_cfg=combat_cfg)
+        player_team = Team("Guerreiros Z", [player])
+        enemy_team = Team(f"Fase {stage_data.get('stage')}: {stage_data.get('name')}", [enemy])
+
+        battle = {
+            "session_id": session_id,
+            "player_team": player_team,
+            "enemy_team": enemy_team,
+            "turn": 1,
+            "status": "ongoing",
+            "log": [f"Campanha iniciada: Fase {stage_data.get('stage')} — {stage_data.get('name')}! {player.name} vs {enemy.name}!"],
+            "campaign": camp_instance.to_dict(),
+            "campaign_stage": stage_data,
+            "campaign_instance": camp_instance,
+            "last_drops": [],
+        }
+        battles[session_id] = battle
+
+        return jsonify({
+            "success": True,
+            "campaign": camp_instance.to_dict(),
+            "stage": stage_data,
+            "battle": serialize_battle(battle),
+        })
+
+    @app.route("/api/campaign/next", methods=["POST"])
+    def next_campaign_stage():
+        payload = request.get_json(silent=True) or {}
+        session_id = payload.get("session_id", "default")
+        battle = battles.get(session_id)
+
+        if not battle or "campaign_instance" not in battle:
+            return jsonify({"error": "Nenhuma campanha ativa para avançar."}), 400
+
+        camp_instance = battle["campaign_instance"]
+        current_stage = camp_instance.get_current_stage()
+        player = battle["player_team"].active_member
+
+        # 1. Resolução de Drops da fase anterior
+        drops = []
+        if current_stage:
+            drops = Campaign.resolve_drops(current_stage)
+            for drop in drops:
+                item_id = drop.get("item_id")
+                qty = drop.get("quantity", 1)
+                player.inventory[item_id] = player.inventory.get(item_id, 0) + qty
+
+            # 2. Recuperação entre fases
+            hp_rec, ki_rec = camp_instance.calculate_stage_recovery(player, current_stage)
+            player.hp = min(player.max_hp, player.hp + hp_rec)
+            player.ki = min(player.max_ki, player.ki + ki_rec)
+
+        # 3. Avança o estágio
+        advanced, adv_info = camp_instance.advance_stage()
+        if camp_instance.is_completed():
+            battle["status"] = "campaign_completed"
+            battle["campaign"] = camp_instance.to_dict()
+            battle["last_drops"] = drops
+            battle["log"].append("Parabéns! Você concluiu todos os desafios da campanha!")
+            return jsonify({
+                "success": True,
+                "completed": True,
+                "drops": drops,
+                "battle": serialize_battle(battle),
+            })
+
+        next_stage = camp_instance.get_current_stage()
+        chars_data = load_characters_data()
+        catalog = get_characters_catalog(chars_data)
+        combat_cfg = chars_data.get("combat_mechanics", {})
+        enemy_data = find_character_data(catalog, next_stage["enemy"])
+
+        new_enemy = Character(enemy_data, combat_cfg=combat_cfg)
+        enemy_team = Team(f"Fase {next_stage.get('stage')}: {next_stage.get('name')}", [new_enemy])
+
+        battle["enemy_team"] = enemy_team
+        battle["status"] = "ongoing"
+        battle["campaign"] = camp_instance.to_dict()
+        battle["campaign_stage"] = next_stage
+        battle["last_drops"] = drops
+        battle["turn"] = 1
+        battle["log"].append(
+            f"Fase {next_stage.get('stage')}: {next_stage.get('name')} iniciada! Oponente: {new_enemy.name}."
+        )
+
+        return jsonify({
+            "success": True,
+            "completed": False,
+            "stage": next_stage,
+            "drops": drops,
+            "battle": serialize_battle(battle),
+        })
 
     # --- Gerenciamento de Batalha ---
 
@@ -572,6 +705,8 @@ def create_app(test_config=None):
                 "player_team": [m.to_dict() for m in battle["player_team"].members],
                 "turn": battle["turn"],
                 "status": battle["status"],
+                "campaign": battle.get("campaign"),
+                "campaign_stage": battle.get("campaign_stage"),
             }
 
         success, info = save_game_state(save_data, filename=filename)
@@ -582,9 +717,68 @@ def create_app(test_config=None):
     def load_state():
         payload = request.get_json(silent=True) or {}
         filename = payload.get("filename", "save.json")
+        session_id = payload.get("session_id", "default")
         data, info = load_game_state(filename=filename)
         if data is None:
             return jsonify({"success": False, "result": info}), 404
+
+        chars_data = load_characters_data()
+        catalog = get_characters_catalog(chars_data)
+        items_data = load_items_data()
+        available_equipment = items_data.get("equipment", {})
+        combat_cfg = chars_data.get("combat_mechanics", {})
+
+        player_dict = data.get("player")
+        if player_dict and "raw_name" in player_dict:
+            p_data = find_character_data(catalog, player_dict["raw_name"])
+            if p_data:
+                player = Character(p_data, combat_cfg=combat_cfg)
+                player.load_state(player_dict, available_equipment=available_equipment)
+                player_team = Team("Guerreiros Z", [player])
+
+                camp_dict = data.get("campaign")
+                camp_data_all = load_campaign_data()
+                all_campaigns = camp_data_all.get("campaigns", {})
+
+                if camp_dict and camp_dict.get("campaign_id") in all_campaigns:
+                    c_id = camp_dict["campaign_id"]
+                    camp_instance = Campaign(all_campaigns[c_id])
+                    camp_instance.load_state(camp_dict)
+                    stage_data = camp_instance.get_current_stage() or all_campaigns[c_id]["stages"][0]
+                    enemy_data = find_character_data(catalog, stage_data["enemy"])
+                    enemy = Character(enemy_data, combat_cfg=combat_cfg)
+                    enemy_team = Team(f"Fase {stage_data.get('stage')}: {stage_data.get('name')}", [enemy])
+                    battle = {
+                        "session_id": session_id,
+                        "player_team": player_team,
+                        "enemy_team": enemy_team,
+                        "turn": data.get("turn", 1),
+                        "status": data.get("status", "ongoing"),
+                        "log": [f"Jogo carregado com sucesso! Fase: {stage_data.get('name')}."],
+                        "campaign": camp_instance.to_dict(),
+                        "campaign_stage": stage_data,
+                        "campaign_instance": camp_instance,
+                        "last_drops": [],
+                    }
+                else:
+                    enemy = Character(find_character_data(catalog, "Vegeta"), combat_cfg=combat_cfg)
+                    enemy_team = Team("Exercito de Freeza", [enemy])
+                    battle = {
+                        "session_id": session_id,
+                        "player_team": player_team,
+                        "enemy_team": enemy_team,
+                        "turn": data.get("turn", 1),
+                        "status": data.get("status", "ongoing"),
+                        "log": ["Jogo carregado com sucesso!"],
+                    }
+                battles[session_id] = battle
+                return jsonify({
+                    "success": True,
+                    "data": data,
+                    "result": info,
+                    "battle": serialize_battle(battle),
+                })
+
         return jsonify({"success": True, "data": data, "result": info})
 
     return app

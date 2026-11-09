@@ -147,6 +147,43 @@
                                 </div>
                             </div>
                         </div>
+
+                        <!-- Modal do Menu de Sistema do Console (START / SELECT) -->
+                        <div class="system-menu-modal" id="systemMenuModal" aria-hidden="true" style="display: none;">
+                            <div class="system-menu-frame">
+                                <div class="system-menu-header">=== SISTEMA ===</div>
+                                <ul class="system-menu-list" id="systemMenuList" role="menu">
+                                    <li class="system-menu-item selected" data-action="continue" role="menuitem">
+                                        <span class="menu-cursor">▶</span> CONTINUAR
+                                    </li>
+                                    <li class="system-menu-item" data-action="campaign" role="menuitem">
+                                        <span class="menu-cursor" style="visibility: hidden;">▶</span> MODO CAMPANHA
+                                    </li>
+                                    <li class="system-menu-item" data-action="save" role="menuitem">
+                                        <span class="menu-cursor" style="visibility: hidden;">▶</span> SALVAR JOGO
+                                    </li>
+                                    <li class="system-menu-item" data-action="load" role="menuitem">
+                                        <span class="menu-cursor" style="visibility: hidden;">▶</span> CARREGAR JOGO
+                                    </li>
+                                </ul>
+                                <div class="system-menu-hint">[A] CONFIRMAR [B] FECHAR</div>
+                            </div>
+                        </div>
+
+                        <!-- Modal Retrô de Vitória de Fase e Drops de Campanha -->
+                        <div class="campaign-modal" id="campaignModal" aria-hidden="true" style="display: none;">
+                            <div class="campaign-modal-frame">
+                                <div class="campaign-modal-header" id="campaignModalHeader">★ VITÓRIA NA FASE! ★</div>
+                                <div class="campaign-stage-title" id="campaignStageTitle">Fase Concluída</div>
+                                <div class="campaign-drops-container">
+                                    <div class="campaign-drops-label">RECOMPENSAS OBTIDAS:</div>
+                                    <ul class="campaign-drops-list" id="campaignDropsList">
+                                        <li>Nenhum item dropado.</li>
+                                    </ul>
+                                </div>
+                                <div class="campaign-continue-btn" id="campaignContinueBtn">[A] AVANÇAR PARA PRÓXIMA FASE</div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </section>

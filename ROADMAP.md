@@ -29,4 +29,4 @@ Mantém o `unittest` como runner; `hypothesis` e `coverage` se integram a ele.
 
 - [x] Retratos/sprites em **Pixel Art 16-bits** dos guerreiros e das transformações (Super Saiyajin, Formas de Frieza) mapeados via YAML.
 - [x] Feedback visual de combate (efeitos de aura ao carregar Ki, piscar ao receber dano e animações de ataques especiais).
-- [ ] Integração visual do **Modo Campanha** (transição de fases, tela de drops) e **Save/Load** (`save.json`) pelo menu do console.
+- [x] Integração visual do **Modo Campanha** (transição de fases, tela de drops) e **Save/Load** (`save.json`) pelo menu do console.

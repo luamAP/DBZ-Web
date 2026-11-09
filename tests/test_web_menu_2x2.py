@@ -42,6 +42,16 @@ class TestWebMenu2x2(unittest.TestCase):
         self.assertIn("menu-cursor", html)
         self.assertIn("▶", html)
 
+        # Modais de sistema (START/SELECT) e campanha
+        self.assertIn('id="systemMenuModal"', html)
+        self.assertIn('id="systemMenuList"', html)
+        self.assertIn('data-action="campaign"', html)
+        self.assertIn('data-action="save"', html)
+        self.assertIn('data-action="load"', html)
+        self.assertIn('id="campaignModal"', html)
+        self.assertIn('id="campaignDropsList"', html)
+        self.assertIn('id="campaignContinueBtn"', html)
+
     def test_menu_js_is_served(self):
         res = self.client.get("/static/js/menu.js")
         self.assertEqual(res.status_code, 200)
@@ -61,6 +71,11 @@ class TestWebMenu2x2(unittest.TestCase):
         self.assertIn("cancel", js)
         self.assertIn("updateSelectionVisuals", js)
         self.assertIn("getSelectedAction", js)
+        self.assertIn("toggleSystemMenu", js)
+        self.assertIn("openSystemMenu", js)
+        self.assertIn("closeSystemMenu", js)
+        self.assertIn("navigateSystemMenu", js)
+        self.assertIn("selectSystemMenuItem", js)
 
         # Integração de eventos
         self.assertIn("gb-input", js)
@@ -78,6 +93,12 @@ class TestWebMenu2x2(unittest.TestCase):
         self.assertIn(".menu-cursor", css)
         self.assertIn(".menu-action-btn.selected", css)
         self.assertIn("@keyframes cursor-blink", css)
+
+        # Estilos dos modais de sistema e campanha
+        self.assertIn(".system-menu-modal", css)
+        self.assertIn(".system-menu-item.selected", css)
+        self.assertIn(".campaign-modal", css)
+        self.assertIn(".campaign-drop-badge", css)
 
 
 if __name__ == "__main__":

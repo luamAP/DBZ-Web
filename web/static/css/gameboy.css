@@ -984,6 +984,144 @@ html, body {
 }
 
 /* ==========================================================================
+   Modais de Sistema (START/SELECT) e Transição de Campanha
+   ========================================================================== */
+.system-menu-modal,
+.campaign-modal {
+    position: absolute;
+    inset: 0;
+    z-index: 50;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(15, 56, 15, 0.45);
+    backdrop-filter: blur(1px);
+    animation: modal-fade-in 0.2s ease-out;
+}
+
+@keyframes modal-fade-in {
+    0% { opacity: 0; transform: scale(0.96); }
+    100% { opacity: 1; transform: scale(1); }
+}
+
+.system-menu-frame,
+.campaign-modal-frame {
+    background: var(--gb-screen-lightest);
+    border: 3px solid var(--gb-screen-dark);
+    border-radius: 4px;
+    padding: 8px 10px;
+    width: 86%;
+    max-width: 230px;
+    box-shadow: 3px 3px 0px var(--gb-screen-dark);
+    font-family: inherit;
+    color: var(--gb-screen-dark);
+}
+
+.system-menu-header,
+.campaign-modal-header {
+    font-size: 11px;
+    font-weight: bold;
+    text-align: center;
+    border-bottom: 2px solid var(--gb-screen-dark);
+    padding-bottom: 4px;
+    margin-bottom: 6px;
+    letter-spacing: 0.5px;
+}
+
+.system-menu-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.system-menu-item {
+    font-size: 10px;
+    font-weight: bold;
+    padding: 3px 5px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    border-radius: 2px;
+}
+
+.system-menu-item.selected {
+    background: var(--gb-screen-dark);
+    color: var(--gb-screen-lightest);
+}
+
+.system-menu-hint,
+.campaign-continue-btn {
+    font-size: 8px;
+    text-align: center;
+    margin-top: 6px;
+    border-top: 1px dashed var(--gb-screen-dark);
+    padding-top: 4px;
+    font-weight: bold;
+    color: var(--gb-screen-dark);
+}
+
+.campaign-continue-btn {
+    cursor: pointer;
+    background: var(--gb-screen-mid);
+    color: var(--gb-screen-lightest);
+    padding: 4px;
+    border-radius: 3px;
+    border: 1px solid var(--gb-screen-dark);
+    animation: btn-pulse 1s infinite alternate;
+}
+
+@keyframes btn-pulse {
+    0% { transform: scale(1); }
+    100% { transform: scale(1.02); }
+}
+
+.campaign-stage-title {
+    font-size: 10px;
+    font-weight: bold;
+    text-align: center;
+    margin-bottom: 6px;
+}
+
+.campaign-drops-container {
+    background: rgba(255, 255, 255, 0.35);
+    border: 1px dashed var(--gb-screen-dark);
+    border-radius: 3px;
+    padding: 4px 6px;
+    margin-bottom: 6px;
+}
+
+.campaign-drops-label {
+    font-size: 9px;
+    font-weight: bold;
+    margin-bottom: 2px;
+}
+
+.campaign-drops-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    font-size: 9px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.campaign-drop-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    padding: 1px 4px;
+    background: var(--gb-screen-dark);
+    color: var(--gb-screen-lightest);
+    border-radius: 2px;
+    font-size: 8px;
+}
+
+/* ==========================================================================
    Ajustes Responsivos Mobile-First
    ========================================================================== */
 @media (max-width: 440px) {
