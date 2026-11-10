@@ -53,6 +53,31 @@ class TestWebLayout(unittest.TestCase):
         data = res.get_json()
         self.assertEqual(data["status"], "ok")
 
+    def test_title_screen_and_main_menu_rendered(self):
+        res = self.client.get("/")
+        self.assertEqual(res.status_code, 200)
+        html = res.get_data(as_text=True)
+
+        # Tela de título e elementos de marca
+        self.assertIn('id="titleScreen"', html)
+        self.assertIn("title-badge", html)
+        self.assertIn("DRAGON BALL Z", html)
+        self.assertIn("GAME BOY EDITION", html)
+
+        # Menu principal retrô de modos
+        self.assertIn('id="titleMenuList"', html)
+        self.assertIn('data-mode="1v1_vegeta"', html)
+        self.assertIn('data-mode="1v1_frieza"', html)
+        self.assertIn('data-mode="tag_2v2"', html)
+        self.assertIn('data-mode="campaign"', html)
+        self.assertIn('data-mode="load"', html)
+        self.assertIn("1V1 VS VEGETA", html)
+        self.assertIn("1V1 VS FREEZA", html)
+        self.assertIn("TAG TEAM 2V2", html)
+        self.assertIn("MODO CAMPANHA", html)
+        self.assertIn("CARREGAR JOGO", html)
+
+
 
 if __name__ == "__main__":
     unittest.main()

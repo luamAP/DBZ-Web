@@ -27,6 +27,34 @@
                 <div class="screen-inner-frame">
                     <!-- Display LCD Estilo Pixel Art -->
                     <div class="screen-display" id="screenDisplay">
+                        <!-- Tela de Título e Menu Principal Retrô -->
+                        <div class="title-screen" id="titleScreen">
+                            <div class="title-brand">
+                                <div class="title-badge">DRAGON BALL Z</div>
+                                <div class="title-subtitle">GAME BOY EDITION</div>
+                            </div>
+                            <div class="title-menu-frame">
+                                <ul class="title-menu-list" id="titleMenuList" role="menu">
+                                    <li class="title-menu-item selected" data-mode="1v1_vegeta" role="menuitem">
+                                        <span class="menu-cursor">▶</span> 1V1 VS VEGETA
+                                    </li>
+                                    <li class="title-menu-item" data-mode="1v1_frieza" role="menuitem">
+                                        <span class="menu-cursor" style="visibility: hidden;">▶</span> 1V1 VS FREEZA
+                                    </li>
+                                    <li class="title-menu-item" data-mode="tag_2v2" role="menuitem">
+                                        <span class="menu-cursor" style="visibility: hidden;">▶</span> TAG TEAM 2V2
+                                    </li>
+                                    <li class="title-menu-item" data-mode="campaign" role="menuitem">
+                                        <span class="menu-cursor" style="visibility: hidden;">▶</span> MODO CAMPANHA
+                                    </li>
+                                    <li class="title-menu-item" data-mode="load" role="menuitem">
+                                        <span class="menu-cursor" style="visibility: hidden;">▶</span> CARREGAR JOGO
+                                    </li>
+                                </ul>
+                            </div>
+                            <div class="title-footer-hint">[▲▼] ESCOLHER  [A] INICIAR</div>
+                        </div>
+
                         <!-- Arena de Batalha (Inimigo topo direito / Jogador base esquerda) -->
                         <div class="battle-arena" id="battleArena">
                             <!-- Painel do Oponente -->
@@ -155,6 +183,9 @@
                                 <ul class="system-menu-list" id="systemMenuList" role="menu">
                                     <li class="system-menu-item selected" data-action="continue" role="menuitem">
                                         <span class="menu-cursor">▶</span> CONTINUAR
+                                    </li>
+                                    <li class="system-menu-item" data-action="main_menu" role="menuitem">
+                                        <span class="menu-cursor" style="visibility: hidden;">▶</span> MENU PRINCIPAL
                                     </li>
                                     <li class="system-menu-item" data-action="campaign" role="menuitem">
                                         <span class="menu-cursor" style="visibility: hidden;">▶</span> MODO CAMPANHA

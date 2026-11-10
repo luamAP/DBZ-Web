@@ -20,11 +20,11 @@
 | `models/campaign.py` | Entidade de campanha: fases, resolução de drops, recuperação e serialização |
 | `web/__init__.py` | Pacote da camada Web (Flask) |
 | `web/app.py` | API Flask: rotas REST de batalha (1v1, Tag Team, Campanha), catálogo, turnos de IA e save state |
-| `web/templates/index.html` | Template HTML5 da carcaça do Game Boy (visor superior e controles inferiores) |
-| `web/static/css/gameboy.css` | Folha de estilos retrô Game Boy mobile-first com paleta DMG e botões táteis |
+| `web/templates/index.html` | Template HTML5 da carcaça do Game Boy (tela de título, visor superior de combate e controles inferiores) |
+| `web/static/css/gameboy.css` | Folha de estilos retrô Game Boy mobile-first com paleta DMG, tela de título e botões táteis |
 | `web/static/js/gamepad.js` | Controlador unificado de input virtual touch, teclado e feedback haptic |
 | `web/static/js/battle.js` | Módulo de animação e sincronização da arena de batalha (barras de HP/Ki, auras, ataques especiais, dano e transição de campanha) |
-| `web/static/js/menu.js` | Navegação e máquina de estados do menu 2x2 e menu de sistema (START/SELECT) para save/load e campanha |
+| `web/static/js/menu.js` | Navegação e máquina de estados da tela de título, menu de modos, grade 2x2 e menu de sistema (START/SELECT) |
 | `web/static/img/sprites/` | Sprites e retratos Pixel Art 16-bits vetorizados (SVG) de combatentes e transformações |
 | `tests/test_character.py` | Atributos, transformações, itens |
 | `tests/test_team.py` | Rotação e KO |

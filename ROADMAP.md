@@ -30,3 +30,10 @@ Mantém o `unittest` como runner; `hypothesis` e `coverage` se integram a ele.
 - [x] Retratos/sprites em **Pixel Art 16-bits** dos guerreiros e das transformações (Super Saiyajin, Formas de Frieza) mapeados via YAML.
 - [x] Feedback visual de combate (efeitos de aura ao carregar Ki, piscar ao receber dano e animações de ataques especiais).
 - [x] Integração visual do **Modo Campanha** (transição de fases, tela de drops) e **Save/Load** (`save.json`) pelo menu do console.
+
+## Fase 4: Tela de Título, Seleção de Modos e Equipamentos Web
+
+- [x] **Tela de Título e Seleção de Modos:** Visor inicial estilo Game Boy com menu principal trazendo todas as opções de `main.py` (1v1 Vegeta, 1v1 Frieza, Tag Team 2v2, Customizar Equipamentos, Modo Campanha e Carregar Jogo).
+- [ ] **Customização de Equipamentos e Cápsulas Web:** Endpoints e interface retrô para listar, equipar e desequipar itens em Goku com atualização de stats em tempo real.
+- [ ] **Transição e Retorno ao Menu:** Integração dos fluxos de fim de combate e botão Start para retornar ao menu principal do Game Boy.
+

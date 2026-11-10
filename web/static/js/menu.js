@@ -25,11 +25,14 @@
             this.col = 0;
             this.enabled = true;
             this.visible = true;
-            this.currentScreen = 'root'; // 'root' (grade 2x2) ou 'submenu'
+            this.currentScreen = 'title'; // 'title', 'root' (grade 2x2), 'submenu', ou 'system'
             this.activeCategory = null;
             this.submenuIndex = 0;
             this.submenuItems = [];
+            this.titleIndex = 0;
 
+            this.titleScreenEl = null;
+            this.titleMenuListEl = null;
             this.gridElement = null;
             this.submenuElement = null;
             this.submenuTitleEl = null;
@@ -58,6 +61,8 @@
         }
 
         setup() {
+            this.titleScreenEl = document.getElementById('titleScreen');
+            this.titleMenuListEl = document.getElementById('titleMenuList');
             this.gridElement = document.getElementById('battleMenuGrid');
             this.submenuElement = document.getElementById('battleSubmenu');
             this.submenuTitleEl = document.getElementById('submenuTitle');
@@ -81,10 +86,26 @@
                 }
             }
 
+            this.cacheTitleMenu();
             this.cacheButtons();
             this.bindSubmenuEvents();
             this.bindGamepadEvents();
+            this.updateTitleMenuVisuals();
             this.updateSelectionVisuals();
+        }
+
+        cacheTitleMenu() {
+            if (!this.titleMenuListEl) return;
+            const items = Array.from(this.titleMenuListEl.querySelectorAll('.title-menu-item'));
+            items.forEach((item, idx) => {
+                item.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    if (!this.enabled || this.currentScreen !== 'title') return;
+                    this.titleIndex = idx;
+                    this.updateTitleMenuVisuals();
+                    this.selectTitleMenuItem();
+                });
+            });
         }
 
         cacheButtons() {
@@ -120,6 +141,22 @@
                 if (!this.enabled || !this.visible) return;
                 const { button, state } = e.detail || {};
                 if (state !== 'pressed') return;
+
+                if (this.currentScreen === 'title') {
+                    switch (button) {
+                        case 'UP':
+                        case 'DOWN':
+                            this.navigateTitleMenu(button);
+                            break;
+                        case 'A':
+                        case 'START':
+                            this.selectTitleMenuItem();
+                            break;
+                        default:
+                            break;
+                    }
+                    return;
+                }
 
                 if (button === 'START' || button === 'SELECT') {
                     this.toggleSystemMenu();
@@ -724,6 +761,9 @@
             const action = selected.getAttribute('data-action');
             if (action === 'continue') {
                 this.closeSystemMenu();
+            } else if (action === 'main_menu') {
+                this.closeSystemMenu();
+                this.showTitleScreen();
             } else if (action === 'campaign') {
                 this.closeSystemMenu();
                 try {
@@ -776,6 +816,139 @@
                     console.error('Erro ao carregar save:', e);
                 }
             }
+        }
+
+        /* ==========================================================================
+           Lógica da Tela de Título e Seleção de Modos Retrô
+           ========================================================================== */
+
+        navigateTitleMenu(direction) {
+            if (!this.titleMenuListEl) return;
+            const items = Array.from(this.titleMenuListEl.querySelectorAll('.title-menu-item'));
+            if (items.length === 0) return;
+
+            if (direction === 'UP' && this.titleIndex > 0) {
+                this.titleIndex--;
+            } else if (direction === 'DOWN' && this.titleIndex < items.length - 1) {
+                this.titleIndex++;
+            }
+            this.updateTitleMenuVisuals();
+            this.emitEvent('battle:title-menu-move', { index: this.titleIndex });
+        }
+
+        updateTitleMenuVisuals() {
+            if (!this.titleMenuListEl) return;
+            const items = Array.from(this.titleMenuListEl.querySelectorAll('.title-menu-item'));
+            items.forEach((item, idx) => {
+                const isSelected = idx === this.titleIndex;
+                item.classList.toggle('selected', isSelected);
+                const cursor = item.querySelector('.menu-cursor');
+                if (cursor) {
+                    cursor.textContent = isSelected ? '▶' : ' ';
+                    cursor.style.visibility = isSelected ? 'visible' : 'hidden';
+                }
+            });
+        }
+
+        async selectTitleMenuItem() {
+            if (!this.titleMenuListEl) return;
+            const items = Array.from(this.titleMenuListEl.querySelectorAll('.title-menu-item'));
+            const selected = items[this.titleIndex];
+            if (!selected) return;
+
+            const mode = selected.getAttribute('data-mode');
+            this.emitEvent('battle:title-menu-select', { mode: mode, index: this.titleIndex });
+            await this.launchGameMode(mode);
+        }
+
+        async launchGameMode(mode) {
+            try {
+                let endpoint = '';
+                let payload = {};
+
+                if (mode === '1v1_vegeta') {
+                    endpoint = '/api/battle/new';
+                    payload = {
+                        session_id: 'default',
+                        player_ids: ['Goku'],
+                        enemy_ids: ['Vegeta'],
+                    };
+                } else if (mode === '1v1_frieza') {
+                    endpoint = '/api/battle/new';
+                    payload = {
+                        session_id: 'default',
+                        player_ids: ['Goku'],
+                        enemy_ids: ['Frieza'],
+                    };
+                } else if (mode === 'tag_2v2') {
+                    endpoint = '/api/battle/new';
+                    payload = {
+                        session_id: 'default',
+                        player_ids: ['Goku', 'Vegeta'],
+                        enemy_ids: ['Frieza', 'Vegeta'],
+                        player_team_name: 'Guerreiros Z',
+                        enemy_team_name: 'Exercito de Freeza',
+                    };
+                } else if (mode === 'campaign') {
+                    endpoint = '/api/campaign/start';
+                    payload = { session_id: 'default' };
+                } else if (mode === 'load') {
+                    endpoint = '/api/load';
+                    payload = { session_id: 'default' };
+                }
+
+                const res = await fetch(endpoint, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload),
+                });
+                const data = await res.json();
+
+                if (res.ok && data.battle) {
+                    this.showArena();
+                    document.dispatchEvent(new CustomEvent('battle-update', { detail: { state: data.battle } }));
+                    this.setCombatantData(data.battle);
+                    let msg = '';
+                    if (mode === 'campaign') {
+                        msg = `Modo Campanha iniciado! Fase 1: ${data.stage ? data.stage.name : ''}`;
+                    } else if (mode === 'load') {
+                        msg = 'Jogo carregado com sucesso!';
+                    } else if (mode === 'tag_2v2') {
+                        msg = 'Batalha Tag Team 2v2 iniciada! Goku & Vegeta vs Exército de Freeza!';
+                    } else {
+                        const enemyName = data.battle.enemy ? data.battle.enemy.name : 'Oponente';
+                        msg = `Batalha iniciada contra ${enemyName}!`;
+                    }
+                    this.setMessage(msg);
+                } else {
+                    if (mode === 'load') {
+                        this.setMessage('Nenhum save encontrado para carregar.');
+                    }
+                }
+            } catch (err) {
+                console.error('Erro ao iniciar modo:', err);
+            }
+        }
+
+        showArena() {
+            if (this.titleScreenEl) {
+                this.titleScreenEl.classList.add('hidden');
+            }
+            this.currentScreen = 'root';
+            this.row = 0;
+            this.col = 0;
+            this.updateSelectionVisuals();
+            this.emitEvent('battle:screen-change', { screen: 'arena' });
+        }
+
+        showTitleScreen() {
+            if (this.titleScreenEl) {
+                this.titleScreenEl.classList.remove('hidden');
+            }
+            this.currentScreen = 'title';
+            this.titleIndex = 0;
+            this.updateTitleMenuVisuals();
+            this.emitEvent('battle:screen-change', { screen: 'title' });
         }
 
         emitEvent(name, detail) {

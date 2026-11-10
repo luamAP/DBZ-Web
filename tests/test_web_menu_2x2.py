@@ -45,6 +45,7 @@ class TestWebMenu2x2(unittest.TestCase):
         # Modais de sistema (START/SELECT) e campanha
         self.assertIn('id="systemMenuModal"', html)
         self.assertIn('id="systemMenuList"', html)
+        self.assertIn('data-action="main_menu"', html)
         self.assertIn('data-action="campaign"', html)
         self.assertIn('data-action="save"', html)
         self.assertIn('data-action="load"', html)
@@ -76,11 +77,19 @@ class TestWebMenu2x2(unittest.TestCase):
         self.assertIn("closeSystemMenu", js)
         self.assertIn("navigateSystemMenu", js)
         self.assertIn("selectSystemMenuItem", js)
+        self.assertIn("navigateTitleMenu", js)
+        self.assertIn("updateTitleMenuVisuals", js)
+        self.assertIn("selectTitleMenuItem", js)
+        self.assertIn("launchGameMode", js)
+        self.assertIn("showArena", js)
+        self.assertIn("showTitleScreen", js)
 
         # Integração de eventos
         self.assertIn("gb-input", js)
         self.assertIn("battle:action-select", js)
         self.assertIn("battle:menu-move", js)
+        self.assertIn("battle:title-menu-move", js)
+        self.assertIn("battle:title-menu-select", js)
         self.assertIn("window.BattleMenu = BattleMenu", js)
 
     def test_gameboy_css_menu_styles(self):
@@ -99,6 +108,11 @@ class TestWebMenu2x2(unittest.TestCase):
         self.assertIn(".system-menu-item.selected", css)
         self.assertIn(".campaign-modal", css)
         self.assertIn(".campaign-drop-badge", css)
+
+        # Estilos da tela de título e menu principal retrô
+        self.assertIn(".title-screen", css)
+        self.assertIn(".title-menu-item.selected", css)
+        self.assertIn(".title-badge", css)
 
 
 if __name__ == "__main__":

@@ -1079,6 +1079,103 @@ html, body {
     100% { transform: scale(1.02); }
 }
 
+/* ==========================================================================
+   Tela de Título e Menu Principal Retrô Estilo Game Boy
+   ========================================================================== */
+.title-screen {
+    position: absolute;
+    inset: 0;
+    z-index: 40;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--gb-screen-lightest);
+    padding: 10px 8px;
+    box-sizing: border-box;
+    font-family: inherit;
+    color: var(--gb-screen-dark);
+}
+
+.title-screen.hidden {
+    display: none !important;
+}
+
+.title-brand {
+    text-align: center;
+    margin-top: 4px;
+}
+
+.title-badge {
+    font-size: 15px;
+    font-weight: 900;
+    letter-spacing: 1.5px;
+    color: var(--gb-screen-dark);
+    text-shadow: 2px 2px 0px var(--gb-screen-light);
+    border-bottom: 2px solid var(--gb-screen-dark);
+    padding-bottom: 2px;
+}
+
+.title-subtitle {
+    font-size: 8px;
+    font-weight: bold;
+    letter-spacing: 1px;
+    color: var(--gb-screen-mid);
+    margin-top: 2px;
+}
+
+.title-menu-frame {
+    width: 92%;
+    max-width: 240px;
+    background: var(--gb-screen-light);
+    border: 2px solid var(--gb-screen-dark);
+    border-radius: 4px;
+    padding: 6px 8px;
+    box-shadow: 2px 2px 0px var(--gb-screen-dark);
+}
+
+.title-menu-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.title-menu-item {
+    font-size: 9.5px;
+    font-weight: bold;
+    padding: 3px 6px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    border-radius: 2px;
+    color: var(--gb-screen-dark);
+}
+
+.title-menu-item.selected {
+    background: var(--gb-screen-dark);
+    color: var(--gb-screen-lightest);
+}
+
+.title-menu-item:hover {
+    background: var(--gb-screen-dark);
+    color: var(--gb-screen-lightest);
+}
+
+.title-footer-hint {
+    font-size: 8px;
+    font-weight: bold;
+    letter-spacing: 0.5px;
+    color: var(--gb-screen-dark);
+    text-align: center;
+    margin-bottom: 2px;
+    animation: cursor-blink 1.2s infinite ease-in-out;
+}
+
+
 .campaign-stage-title {
     font-size: 10px;
     font-weight: bold;
