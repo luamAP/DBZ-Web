@@ -136,7 +136,6 @@
                 }
             });
         }
-        }
 
         /**
          * Calcula percentual seguro entre 0 e 100

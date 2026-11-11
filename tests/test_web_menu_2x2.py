@@ -91,6 +91,7 @@ class TestWebMenu2x2(unittest.TestCase):
         self.assertIn("battle:title-menu-move", js)
         self.assertIn("battle:title-menu-select", js)
         self.assertIn("window.BattleMenu = BattleMenu", js)
+        self.assertEqual(js.count("{"), js.count("}"), "Chaves desbalanceadas em menu.js")
 
     def test_gameboy_css_menu_styles(self):
         res = self.client.get("/static/css/gameboy.css")

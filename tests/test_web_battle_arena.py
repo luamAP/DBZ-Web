@@ -76,6 +76,7 @@ class TestWebBattleArena(unittest.TestCase):
         self.assertIn("playSpecialAttackAnimation", js)
         self.assertIn("updateFromState", js)
         self.assertIn("window.BattleUI = BattleUI", js)
+        self.assertEqual(js.count("{"), js.count("}"), "Chaves desbalanceadas em battle.js")
 
     def test_gameboy_css_has_arena_and_animation_rules(self):
         res = self.client.get("/static/css/gameboy.css")
